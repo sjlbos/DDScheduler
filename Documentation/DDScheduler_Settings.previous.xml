@@ -180,5 +180,32 @@
       <EmptySection_DummyValue />
     </Events>
   </Bean>
+  <Bean name="ddScheduler" type="OS_Task">
+    <Enabled v="Y" />
+    <Properties>
+      <Name v="ddScheduler" />
+      <Component_version v="1.3.0" />
+    </Properties>
+    <Methods>
+      <EmptySection_DummyValue />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
+  <Bean name="myUART" type="fsl_uart">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="myUART" />
+      <Device v="UART3" />
+      <Component_version v="1.3.0" />
+    </Properties>
+    <Methods>
+      <EmptySection_DummyValue />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
 </PE_PROJECT_SETTINGS_DOCUMENTATION>
 
