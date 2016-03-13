@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2016-03-09, 15:49, # CodeGen: 2
+**     Date/Time   : 2016-03-13, 13:24, # CodeGen: 3
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -60,6 +60,7 @@
 #include "MainTask.h"
 #include "ddScheduler.h"
 #include "serialHandler.h"
+#include "SchedulerInterface.h"
 extern void * kernel_data_prv;
 #if MQXCFG_PREALLOCATED_SYSTEM_STACKS
 extern uint8_t mqx_interrupt_stack[];
@@ -101,6 +102,17 @@ const TASK_TEMPLATE_STRUCT MQX_template_list[] =
     /* Stack size                     */  SERIALHANDLER_TASK_STACK_SIZE,
     /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(SERIALHANDLER_TASK_PRIORITY)),
     /* Task name                      */  SERIALHANDLER_TASK_NAME,
+    /* Task attributes                */  (0),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: SchedulerInterface */
+  {
+    /* Task number                    */  SCHEDULERINTERFACE_TASK,
+    /* Entry point                    */  (TASK_FPTR)runSchedulerInterface,
+    /* Stack size                     */  SCHEDULERINTERFACE_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(SCHEDULERINTERFACE_TASK_PRIORITY)),
+    /* Task name                      */  SCHEDULERINTERFACE_TASK_NAME,
     /* Task attributes                */  (0),
     /* Task parameter                 */  (uint32_t)(NULL),
     /* Task time slice                */  (uint32_t)(0U)

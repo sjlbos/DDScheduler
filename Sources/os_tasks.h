@@ -42,6 +42,7 @@
 #include "ddScheduler.h"
 #include "myUART.h"
 #include "serialHandler.h"
+#include "SchedulerInterface.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +70,17 @@ void runScheduler(os_task_param_t task_init_data);
 ** ===================================================================
 */
 void runSerialHandler(os_task_param_t task_init_data);
+
+/*
+** ===================================================================
+**     Callback    : runSchedulerInterface
+**     Description : Task function entry.
+**     Parameters  :
+**       task_init_data - OS task parameter
+**     Returns : Nothing
+** ===================================================================
+*/
+void runSchedulerInterface(os_task_param_t task_init_data);
 
 /* END os_tasks */
 

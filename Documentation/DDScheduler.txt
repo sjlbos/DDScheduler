@@ -290,6 +290,9 @@ Module "myUART"    (component fsl_uart)
 Module "serialHandler" (component OS_Task)
    - serialHandler_Init -Creates and starts a task.
 
+Module "SchedulerInterface" (component OS_Task)
+   - SchedulerInterface_Init -Creates and starts a task.
+
 Module "Cpu"       (component MK64FN1M0LL12_4SDK)
    - Cpu_SystemInit -This method configures the oscillator (PLL) that is part of the microcontroller device. SystemInit is 
                 called from startup_device file.

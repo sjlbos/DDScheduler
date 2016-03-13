@@ -42,6 +42,7 @@
 #include "ddScheduler.h"
 #include "myUART.h"
 #include "serialHandler.h"
+#include "SchedulerInterface.h"
 
 #ifdef __cplusplus
 extern "C" {

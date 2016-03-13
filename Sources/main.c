@@ -43,6 +43,7 @@
 #include "ddScheduler.h"
 #include "myUART.h"
 #include "serialHandler.h"
+#include "SchedulerInterface.h"
 #if CPU_INIT_CONFIG
   #include "Init_Config.h"
 #endif
