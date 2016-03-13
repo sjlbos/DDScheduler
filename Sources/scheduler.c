@@ -38,12 +38,6 @@ static _queue_id _initializeQueue(int queueNum){
 	return queueId;
 }
 
-void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize){
-	g_RequestQueue = requestQueue;
-	_initializeSchedulerMessagePools(initialPoolSize, poolGrowthRate, maxPoolSize);
-}
-
-
 /*=============================================================
                           MESSAGES
  ==============================================================*/
@@ -119,7 +113,26 @@ static SchedulerRequestMessagePtr _initializeRequestOverdueMessage(_queue_id res
                       TASK LIST MANAGEMENT
  ==============================================================*/
 
+/*=============================================================
+                      INTERNAL INTERFACE
+ ==============================================================*/
 
+void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize){
+	g_RequestQueue = requestQueue;
+	_initializeSchedulerMessagePools(initialPoolSize, poolGrowthRate, maxPoolSize);
+}
+
+void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage){
+
+}
+
+void _handleDeadlineReached(){
+
+}
+
+uint32_t _getNextDeadline(){
+	return NO_DEADLINE;
+}
 
 /*=============================================================
                       USER TASK INTERFACE

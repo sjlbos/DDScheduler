@@ -320,7 +320,6 @@ void _handleCharacterInput(char character, HandlerPtr handler){
 void _handleInterruptMessage(InterruptMessagePtr interruptMessage, HandlerPtr handler){
 	char inputChar = interruptMessage->character;
 	_handleCharacterInput(inputChar, g_Handler);
-	_msg_free(interruptMessage);
 }
 
 void _handleWriteMessage(SerialMessagePtr serialMessage, HandlerPtr handler){
@@ -329,7 +328,6 @@ void _handleWriteMessage(SerialMessagePtr serialMessage, HandlerPtr handler){
 	for(int i=0; i < serialMessage->length; i++){
 		_handleCharacterInput(messageString[i], handler);
 	}
-	_msg_free(serialMessage);
 }
 
 /*=============================================================

@@ -8,6 +8,12 @@
 #define SOURCES_SCHEDULER_H_
 
 /*=============================================================
+                      	  CONSTANTS
+ ==============================================================*/
+
+#define NO_DEADLINE 0
+
+/*=============================================================
                       EXPORTED TYPES
  ==============================================================*/
 
@@ -70,5 +76,8 @@ bool dd_return_overdue_list(TaskList* taskList);
  ==============================================================*/
 
 void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize);
+void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage);
+void _handleDeadlineReached();
+uint32_t _getNextDeadline();
 
 #endif /* SOURCES_SCHEDULER_H_ */
