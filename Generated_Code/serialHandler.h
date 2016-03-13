@@ -7,7 +7,7 @@
 **     Version     : Component 1.3.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2016-03-09, 15:49, # CodeGen: 2
+**     Date/Time   : 2016-03-13, 14:02, # CodeGen: 3
 **     Contents    :
 **         Init - osa_status_t serialHandler_Init(void);
 **
@@ -66,7 +66,7 @@
 /* serialHandler task stack size */  
 #define SERIALHANDLER_TASK_STACK_SIZE  1024U
 /* serialHandler task priority value */  
-#define SERIALHANDLER_TASK_PRIORITY    16U
+#define SERIALHANDLER_TASK_PRIORITY    1U
 /*
 ** ===================================================================
 **     Method      :  Init (component OS_Task)

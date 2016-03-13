@@ -42,8 +42,13 @@ _queue_id _initializeQueue(int queueNum){
 void runScheduler(os_task_param_t task_init_data)
 {
 	printf("\r\nScheduler task started.\r\n");
+
 	_queue_id requestQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
-  
+	_initializeScheduler(requestQueue,
+			SCHEDULER_MESSAGE_POOL_INITIAL_SIZE,
+			SCHEDULER_MESSAGE_POOL_GROWTH_RATE,
+			SCHEDULER_MESSAGE_POOL_MAX_SIZE);
+
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif

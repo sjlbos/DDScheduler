@@ -2,7 +2,7 @@
 <GenerationInfo_G_C>
   <Options>
     <ProjectName>DDScheduler</ProjectName>
-    <ProjectDirectory>C:\Users\jorinw\Documents\DDScheduler\</ProjectDirectory>
+    <ProjectDirectory>C:\Users\sjlbos\Repos\DDScheduler\</ProjectDirectory>
     <ProjectMainModuleName>main</ProjectMainModuleName>
     <DestEventsDirectory>Sources\</DestEventsDirectory>
     <DestDriversSubDirectory>..\Generated_Code\</DestDriversSubDirectory>
@@ -28,12 +28,12 @@
         <Line>Documentation\doxygen\pex.css</Line>
       </GenExtraFiles>
       <GenExtraFileSrcDir10>Repositories\lib\doxygen\</GenExtraFileSrcDir10>
-      <XtraAge0>1215129028</XtraAge0>
-      <XtraAge1>1215129028</XtraAge1>
-      <XtraAge2>1215129028</XtraAge2>
-      <XtraAge3>1215129028</XtraAge3>
-      <XtraAge4>1215129028</XtraAge4>
-      <XtraAge5>1215129028</XtraAge5>
+      <XtraAge0>1214871696</XtraAge0>
+      <XtraAge1>1214872677</XtraAge1>
+      <XtraAge2>1214872677</XtraAge2>
+      <XtraAge3>1214872677</XtraAge3>
+      <XtraAge4>1214872677</XtraAge4>
+      <XtraAge5>1214871696</XtraAge5>
       <GenExtraFileType10>5</GenExtraFileType10>
       <GenExtraFileType9>4</GenExtraFileType9>
       <GenExtraFileType8>4</GenExtraFileType8>
@@ -2403,15 +2403,14 @@
       <GenMethodsInEvents lines_count="1">
         <Line>myUART_RxCallback</Line>
       </GenMethodsInEvents>
-      <GenMethodsInos_tasks lines_count="3">
-        <Line>runSchedulerInterface</Line>
+      <GenMethodsInos_tasks lines_count="2">
         <Line>runSerialHandler</Line>
         <Line>runScheduler</Line>
       </GenMethodsInos_tasks>
       <GenMethodsInrtos_main_task lines_count="1">
         <Line>main_task</Line>
       </GenMethodsInrtos_main_task>
-      <GenAllModules lines_count="16">
+      <GenAllModules lines_count="15">
         <Line>clockMan1</Line>
         <Line>Cpu</Line>
         <Line>ddScheduler</Line>
@@ -2425,12 +2424,11 @@
         <Line>osa1</Line>
         <Line>pin_init</Line>
         <Line>rtos_main_task</Line>
-        <Line>SchedulerInterface</Line>
         <Line>serialHandler</Line>
         <Line>uart1</Line>
       </GenAllModules>
       <GenExternModules lines_count="0" />
-      <GenBeanModules lines_count="12">
+      <GenBeanModules lines_count="11">
         <Line>clockMan1</Line>
         <Line>pin_init</Line>
         <Line>osa1</Line>
@@ -2442,7 +2440,6 @@
         <Line>ddScheduler</Line>
         <Line>myUART</Line>
         <Line>serialHandler</Line>
-        <Line>SchedulerInterface</Line>
       </GenBeanModules>
     </GenFiles>
     <SignalListFile />
@@ -2455,8 +2452,8 @@
     <GenComponentVersion>1.2.0</GenComponentVersion>
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule>Events</GenEventModule>
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215130405</CodeAge>
+    <HeaderAge>1214872677</HeaderAge>
+    <CodeAge>1214873157</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>2</GenNumMethods>
     <SystemInit>true</SystemInit>
@@ -2507,8 +2504,8 @@
     <GenComponentVersion>1.3.0</GenComponentVersion>
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule>Events</GenEventModule>
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215129028</CodeAge>
+    <HeaderAge>1214871696</HeaderAge>
+    <CodeAge>1214871696</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>178</GenNumMethods>
     <CLOCK_SYS_SetOutDiv1>true</CLOCK_SYS_SetOutDiv1>
@@ -3002,8 +2999,8 @@
     <GenComponentVersion>1.2.0</GenComponentVersion>
     <GenDriverVersion>1.4</GenDriverVersion>
     <GenEventModule />
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215129028</CodeAge>
+    <HeaderAge>1214872677</HeaderAge>
+    <CodeAge>1214872677</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>59</GenNumMethods>
     <hardware_init>true</hardware_init>
@@ -3334,8 +3331,8 @@
     <GenComponentVersion>1.3.0</GenComponentVersion>
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule />
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215129028</CodeAge>
+    <HeaderAge>1214872677</HeaderAge>
+    <CodeAge>1214872677</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>35</GenNumMethods>
     <OSA_DefaultIntHandler>true</OSA_DefaultIntHandler>
@@ -3416,8 +3413,8 @@
       <GenComponentVersion>1.2.0</GenComponentVersion>
       <GenDriverVersion>01.00</GenDriverVersion>
       <GenEventModule />
-      <HeaderAge>1215130405</HeaderAge>
-      <CodeAge>1215130405</CodeAge>
+      <HeaderAge>1214873157</HeaderAge>
+      <CodeAge>1214873157</CodeAge>
       <AsemblAge>-1</AsemblAge>
       <GenNumMethods>287</GenNumMethods>
       <_int_default_isr>true</_int_default_isr>
@@ -3927,8 +3924,8 @@
         <GenComponentVersion>1.3.0</GenComponentVersion>
         <GenDriverVersion>01.00</GenDriverVersion>
         <GenEventModule>Events</GenEventModule>
-        <HeaderAge>1215129028</HeaderAge>
-        <CodeAge>1215129028</CodeAge>
+        <HeaderAge>1214872677</HeaderAge>
+        <CodeAge>1214872677</CodeAge>
         <AsemblAge>-1</AsemblAge>
         <GenNumMethods>12</GenNumMethods>
         <UART_DRV_Init>true</UART_DRV_Init>
@@ -4086,8 +4083,8 @@
         <GenComponentVersion>1.3.0</GenComponentVersion>
         <GenDriverVersion>01.00</GenDriverVersion>
         <GenEventModule>Events</GenEventModule>
-        <HeaderAge>1215129028</HeaderAge>
-        <CodeAge>1215129028</CodeAge>
+        <HeaderAge>1214872677</HeaderAge>
+        <CodeAge>1214872677</CodeAge>
         <AsemblAge>-1</AsemblAge>
         <GenNumMethods>8</GenNumMethods>
         <MPU_DRV_Init>true</MPU_DRV_Init>
@@ -4151,8 +4148,8 @@
         <GenComponentVersion>1.3.0</GenComponentVersion>
         <GenDriverVersion>01.00</GenDriverVersion>
         <GenEventModule>Events</GenEventModule>
-        <HeaderAge>1215129028</HeaderAge>
-        <CodeAge>1215129028</CodeAge>
+        <HeaderAge>1214872677</HeaderAge>
+        <CodeAge>1214872677</CodeAge>
         <AsemblAge>-1</AsemblAge>
         <GenNumMethods>13</GenNumMethods>
         <HWTIMER_SYS_Init>true</HWTIMER_SYS_Init>
@@ -4188,8 +4185,8 @@
         <GenComponentVersion>1.3.0</GenComponentVersion>
         <GenDriverVersion>01.00</GenDriverVersion>
         <GenEventModule>rtos_main_task</GenEventModule>
-        <HeaderAge>1215129028</HeaderAge>
-        <CodeAge>1215129028</CodeAge>
+        <HeaderAge>1214872677</HeaderAge>
+        <CodeAge>1214872677</CodeAge>
         <AsemblAge>-1</AsemblAge>
         <GenNumMethods>3</GenNumMethods>
         <Init>true</Init>
@@ -4227,8 +4224,8 @@
     <GenComponentVersion>1.3.0</GenComponentVersion>
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule>os_tasks</GenEventModule>
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215129028</CodeAge>
+    <HeaderAge>1215131745</HeaderAge>
+    <CodeAge>1214872677</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>3</GenNumMethods>
     <Init>true</Init>
@@ -4264,8 +4261,8 @@
     <GenComponentVersion>1.3.0</GenComponentVersion>
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule>Events</GenEventModule>
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215129028</CodeAge>
+    <HeaderAge>1214872677</HeaderAge>
+    <CodeAge>1214872677</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>12</GenNumMethods>
     <UART_DRV_Init>true</UART_DRV_Init>
@@ -4423,8 +4420,8 @@
     <GenComponentVersion>1.3.0</GenComponentVersion>
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule>os_tasks</GenEventModule>
-    <HeaderAge>1215129028</HeaderAge>
-    <CodeAge>1215129028</CodeAge>
+    <HeaderAge>1215131745</HeaderAge>
+    <CodeAge>1214873157</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>3</GenNumMethods>
     <Init>true</Init>
@@ -4454,43 +4451,6 @@
     </MethodPos>
     <GenExtraFilesCount>0</GenExtraFilesCount>
   </ComponentID_28>
-  <ComponentID_36>
-    <Generated>true</Generated>
-    <GenCompName>SchedulerInterface</GenCompName>
-    <GenComponentVersion>1.3.0</GenComponentVersion>
-    <GenDriverVersion>01.00</GenDriverVersion>
-    <GenEventModule>os_tasks</GenEventModule>
-    <HeaderAge>1215130405</HeaderAge>
-    <CodeAge>1215130405</CodeAge>
-    <AsemblAge>-1</AsemblAge>
-    <GenNumMethods>3</GenNumMethods>
-    <Init>true</Init>
-    <GetHandler>false</GetHandler>
-    <Deinit>false</Deinit>
-    <GenNumEvents>1</GenNumEvents>
-    <TaskCode_Selected>3</TaskCode_Selected>
-    <TaskCode_Name>runSchedulerInterface</TaskCode_Name>
-    <TaskCode_Priority>interrupts disabled</TaskCode_Priority>
-    <GenSmartUserChangesDetected_Header>false</GenSmartUserChangesDetected_Header>
-    <GenSmartUserChangesDetected_Code>false</GenSmartUserChangesDetected_Code>
-    <GenSmartUserChangesDetected_Asembl>false</GenSmartUserChangesDetected_Asembl>
-    <GenMethodPos>2</GenMethodPos>
-    <MethodPos>
-      <MethodPos0>Init</MethodPos0>
-      <MethodType>internal_method</MethodType>
-      <ModuleType>Header</ModuleType>
-      <LineBeg>69</LineBeg>
-      <LineEnd>80</LineEnd>
-    </MethodPos>
-    <MethodPos>
-      <MethodPos1>Init</MethodPos1>
-      <MethodType>internal_method</MethodType>
-      <ModuleType>Code</ModuleType>
-      <LineBeg>59</LineBeg>
-      <LineEnd>77</LineEnd>
-    </MethodPos>
-    <GenExtraFilesCount>0</GenExtraFilesCount>
-  </ComponentID_36>
   <UsedSrcFiles>
     <SrcFile0>Drivers\PEx_Kinetis.src=1194226771</SrcFile0>
     <SrcFile1>Drivers\MQX_KSDK.src=-1</SrcFile1>
