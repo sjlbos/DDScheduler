@@ -13,20 +13,8 @@
  ==============================================================*/
 
 #define PRINT_DELAY_MS 10
-
-#define HANDLER_INTERRUPT_QUEUE_ID 8
-#define HANDLER_INPUT_QUEUE_ID 9
-
 #define HANDLER_BUFFER_SIZE 256
 #define HANDLER_READER_MAX 32
-
-#define SERIAL_MESSAGE_POOL_INITIAL_SIZE 16
-#define SERIAL_MESSAGE_POOL_GROWTH_RATE 16
-#define SERIAL_MESSAGE_POOL_MAX_SIZE 2048
-
-#define INTERRUPT_MESSAGE_POOL_INITIAL_SIZE 1
-#define INTERRUPT_MESSAGE_POOL_GROWTH_RATE 1
-#define INTERRUPT_MESSAGE_POOL_MAX_SIZE 16
 
 /*=============================================================
                       EXPORTED TYPES

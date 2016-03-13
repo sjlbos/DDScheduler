@@ -1,19 +1,11 @@
 #include <ctype.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <mqx.h>
+#include <message.h>
 
 #ifndef SOURCES_SCHEDULER_H_
 #define SOURCES_SCHEDULER_H_
-
-/*=============================================================
-                         CONSTANTS
- ==============================================================*/
-
-#define SCHEDULER_QUEUE_ID 10
-
-#define SCHEDULER_MESSAGE_POOL_INITIAL_SIZE 16
-#define SCHEDULER_MESSAGE_POOL_GROWTH_RATE 8
-#define SCHEDULER_MESSAGE_POOL_MAX_SIZE 64
 
 /*=============================================================
                       EXPORTED TYPES
@@ -34,14 +26,31 @@ typedef struct TaskListNode{
 
 typedef TaskListNodePtr* TaskList;
 
+typedef enum MessageType{
+	CREATE,
+	DELETE,
+	REQUEST_ACTIVE,
+	REQUEST_OVERDUE
+} MessageType;
+
+typedef struct SchedulerRequestMessage{
+	MESSAGE_HEADER_STRUCT HEADER;
+	MessageType MessageType;
+	_task_id TaskId;
+} SchedulerRequestMessage, * SchedulerRequestMessagePtr;
+
+typedef struct TaskListMessage{
+	MESSAGE_HEADER_STRUCT HEADER;
+	TaskList Tasks;
+} TaskListMessage, * TaskListMessagePtr;
 
 /*=============================================================
                       USER TASK INTERFACE
  ==============================================================*/
 
 _task_id dd_tcreate();
-uint32_t dd_delete(_task_id task);
-uint32_t dd_return_active_list();
-uint32_t dd_return_overdue_list();
+bool dd_delete(_task_id task);
+bool dd_return_active_list(TaskList* taskList);
+bool dd_return_overdue_list(TaskList* taskList);
 
 #endif /* SOURCES_SCHEDULER_H_ */

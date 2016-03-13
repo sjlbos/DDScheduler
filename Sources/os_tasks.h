@@ -1,30 +1,3 @@
-/* ###################################################################
-**     Filename    : os_tasks.h
-**     Project     : DDScheduler
-**     Processor   : MK64FN1M0VLL12
-**     Component   : Events
-**     Version     : Driver 01.00
-**     Compiler    : GNU C Compiler
-**     Date/Time   : 2016-03-09, 15:34, # CodeGen: 1
-**     Abstract    :
-**         This is user's event module.
-**         Put your event handler code here.
-**     Settings    :
-**     Contents    :
-**         runScheduler - void runScheduler(os_task_param_t task_init_data);
-**
-** ###################################################################*/
-/*!
-** @file os_tasks.h
-** @version 01.00
-** @brief
-**         This is user's event module.
-**         Put your event handler code here.
-*/         
-/*!
-**  @addtogroup os_tasks_module os_tasks module documentation
-**  @{
-*/         
 
 #ifndef __os_tasks_H
 #define __os_tasks_H
@@ -48,27 +21,33 @@
 extern "C" {
 #endif 
 
-/*
-** ===================================================================
-**     Callback    : runScheduler
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
+/*=============================================================
+                          CONSTANTS
+ ==============================================================*/
+
+#define HANDLER_INTERRUPT_QUEUE_ID 8
+#define HANDLER_INPUT_QUEUE_ID 9
+
+#define SERIAL_MESSAGE_POOL_INITIAL_SIZE 16
+#define SERIAL_MESSAGE_POOL_GROWTH_RATE 16
+#define SERIAL_MESSAGE_POOL_MAX_SIZE 2048
+
+#define INTERRUPT_MESSAGE_POOL_INITIAL_SIZE 1
+#define INTERRUPT_MESSAGE_POOL_GROWTH_RATE 1
+#define INTERRUPT_MESSAGE_POOL_MAX_SIZE 16
+
+#define SCHEDULER_QUEUE_ID 10
+
+#define SCHEDULER_MESSAGE_POOL_INITIAL_SIZE 16
+#define SCHEDULER_MESSAGE_POOL_GROWTH_RATE 8
+#define SCHEDULER_MESSAGE_POOL_MAX_SIZE 64
+
+
+/*=============================================================
+                     TASK ENTRY POINTS
+ ==============================================================*/
+
 void runScheduler(os_task_param_t task_init_data);
-
-
-/*
-** ===================================================================
-**     Callback    : runSerialHandler
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
 void runSerialHandler(os_task_param_t task_init_data);
 
 /*
@@ -89,15 +68,3 @@ void runSchedulerInterface(os_task_param_t task_init_data);
 #endif 
 
 #endif 
-/* ifndef __os_tasks_H*/
-/*!
-** @}
-*/
-/*
-** ###################################################################
-**
-**     This file was created by Processor Expert 10.5 [05.21]
-**     for the Freescale Kinetis series of microcontrollers.
-**
-** ###################################################################
-*/
