@@ -7,6 +7,7 @@
 #include "rtos_main_task.h"
 #include "os_tasks.h"
 #include "handler.h"
+#include "schedulerInterface.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,33 +128,55 @@ void runSerialHandler(os_task_param_t task_init_data)
 	#endif
 }
 
-/*
-** ===================================================================
-**     Callback    : runSchedulerInterface
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
+
+
 void runSchedulerInterface(os_task_param_t task_init_data)
 {
-  /* Write your local variable definition here */
-  
+	//allow initializations to occur before trying to register
+	OSA_TimeDelay(40);
+
+	// Create a buffer for received messages
+	char outputString[HANDLER_BUFFER_SIZE + 1];
+	memset(outputString, 0, HANDLER_BUFFER_SIZE + 1);
+
+	// Create a queue to receive messages
+	_queue_id receiveQueue = _initializeQueue(10);
+
+	//Try to get read permission
+	if(!OpenR(receiveQueue)){
+		printf("SchedulerInterface OpenR() failed.\n");
+		_task_block();
+	}
+
+	//This may not get used if we only use printf for feedback.
+	/*
+	_queue_id inputQueue = OpenW();
+	//Try to get write permission
+	if(inputQueue == 0){
+			printf("SchedulerInterface Openw failed.\n");
+			_task_block();
+	}*/
+
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-    /* Write your code here ... */
-    
-    
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-   
-    
-    
-    
+	  //Listen for input from user
+	  GetLine(outputString);
+
+	  //listen for commands
+	  if(!HandleCommand(outputString)){
+		  printf("Not a valid command\n");
+	  }
+
+	  //Wipe outputString
+	  memset(outputString, 0, HANDLER_BUFFER_SIZE + 1);
+
 #ifdef PEX_USE_RTOS   
   }
-#endif    
+#endif
+
+	//release read
+	Close();
 }
 
 /* END os_tasks */
