@@ -22,23 +22,30 @@ HandlerPtr g_Handler;				// The global handler instance
 MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's internal state
 
 /*=============================================================
+                       HELPER FUNCTIONS
+ ==============================================================*/
+
+_queue_id _initializeQueue(int queueNum){
+	_queue_id queueId = _msgq_open(queueNum, 0);
+	if(queueId == 0){
+		printf("Failed to open queue %d.\n", queueNum);
+		_task_block();
+	}
+	return queueId;
+}
+
+/*=============================================================
                        SCHEDULER TASK
  ==============================================================*/
 
 void runScheduler(os_task_param_t task_init_data)
 {
-  /* Write your local variable definition here */
+	printf("\r\nScheduler task started.\r\n");
+	_queue_id requestQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
   
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-    /* Write your code here ... */
-    
-    
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-   
-    
-    
     
 #ifdef PEX_USE_RTOS   
   }
@@ -49,7 +56,7 @@ void runScheduler(os_task_param_t task_init_data)
                        SERIAL HANDLER TASK
  ==============================================================*/
 
-void _initializeMessagePools(){
+void _initializeHandlerMessagePools(){
 	// Initialize interrupt message pool
 	g_InterruptMessagePool = _msgpool_create(sizeof(InterruptMessage),
 			INTERRUPT_MESSAGE_POOL_INITIAL_SIZE,
@@ -71,16 +78,6 @@ void _initializeMessagePools(){
 	}
 }
 
-_queue_id _initializeQueue(int queueNum){
-	// Initialize interrupt queue
-	_queue_id queueId = _msgq_open(queueNum, 0);
-	if(queueId == 0){
-		printf("Failed to open queue %d.\n", queueNum);
-		_task_block();
-	}
-	return queueId;
-}
-
 void runSerialHandler(os_task_param_t task_init_data)
 {
 	printf("\r\nHandler task started.\r\n");
@@ -88,7 +85,7 @@ void runSerialHandler(os_task_param_t task_init_data)
 		// Initialize queues and message pools
 		_queue_id interruptQueue = _initializeQueue(HANDLER_INTERRUPT_QUEUE_ID);
 		_queue_id inputQueue = _initializeQueue(HANDLER_INPUT_QUEUE_ID);
-		_initializeMessagePools();
+		_initializeHandlerMessagePools();
 
 		// Initialize Handler
 		Handler handler;
@@ -135,15 +132,3 @@ void runSerialHandler(os_task_param_t task_init_data)
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif 
-
-/*!
-** @}
-*/
-/*
-** ###################################################################
-**
-**     This file was created by Processor Expert 10.5 [05.21]
-**     for the Freescale Kinetis series of microcontrollers.
-**
-** ###################################################################
-*/
