@@ -1,23 +1,61 @@
+#include "schedulerInterface.h"
 #include "scheduler.h"
 #include "handler.h"
 
+const char token[2] = " ";
+
 //creates a task
-void _handleCreate(char* outputString){
-	return;
+_task_id _handleCreate(char* outputString){
+	strtok(outputString,token);
+	uint32_t templateIndex = atoi(strtok(NULL,token));
+	uint32_t dealine = atoi(strtok(NULL,token));
+	if(strtok(NULL,token) != NULL){
+		return 0;
+	}
+	return dd_tcreate(templateIndex, dealine);
 }
 
 //deletes a task
-void _handleDelete(char* outputString){
-	return;
+bool _handleDelete(char* outputString){
+	strtok(outputString,token);
+	uint32_t taskId = atoi(strtok(NULL,token));
+	if(strtok(NULL,token) != NULL){
+			return false;
+	}
+	return dd_delete(taskId);
 }
 
 //provides feedback on active tasks
-void _handleActive(char* outputString){
+void _handleActive(){
+	TaskList taskList;
+	dd_return_active_list(&taskList);
+	if(taskList == NULL) return;
+	printf("Active Tasks:\n");
+	prettyPrintTaskList(taskList);
+	free(taskList);
 	return;
 }
 
 //provides feedback on overdue tasks
-void _handleOverdue(char* outputString){
+void _handleOverdue(){
+	TaskList taskList;
+	dd_return_overdue_list(&taskList);
+	if(taskList == NULL) return;
+	printf("OverDue Tasks:\n");
+	prettyPrintTaskList(taskList);
+	free(taskList);
+	return;
+}
+
+//print out tasks in a nice format
+void prettyPrintTaskList(TaskList taskList){
+	do{
+			printf("Task ID:      %u\n", taskList->task->taskId);
+			printf("Task Deadline:%u\n", taskList->task->deadline);
+			printf("Task Type:    %u\n", taskList->task->taskType);
+			printf("Task Created: %u\n\n", taskList->task->createdAt);
+			taskList = taskList->nextNode;
+	}while(taskList!=NULL);
 	return;
 }
 
@@ -26,16 +64,16 @@ bool HandleCommand(char* outputString){
 	//parse the input string
 	switch(outputString[0]){
 		case 'c'://task create
-			_handleCreate(outputString);
+			if(_handleCreate(outputString) == 0) return false;
 			break;
 		case 'd'://task delete
-			_handleDelete(outputString);
+			if(!_handleDelete(outputString)) return false;
 			break;
 		case 'a'://request active list
-			_handleActive(outputString);
+			_handleActive();
 			break;
 		case 'o'://request overdue/dead list
-			_handleOverdue(outputString);
+			_handleOverdue();
 			break;
 		default://not a valid command
 			return false;

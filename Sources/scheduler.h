@@ -24,7 +24,7 @@ typedef struct TaskListNode{
 	struct TaskListNode* prevNode;
 } TaskListNode, *TaskListNodePtr;
 
-typedef TaskListNodePtr* TaskList;
+typedef TaskListNodePtr TaskList;
 
 typedef enum MessageType{
 	CREATE,
