@@ -7,6 +7,7 @@
 #include "rtos_main_task.h"
 #include "os_tasks.h"
 #include "handler.h"
+#include "scheduler.h"
 #include "schedulerInterface.h"
 
 #ifdef __cplusplus
@@ -52,7 +53,20 @@ void runScheduler(os_task_param_t task_init_data)
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-    
+	  SchedulerRequestMessagePtr requestMessage = NULL;
+	  uint32_t nextDeadline = _getNextDeadline();
+
+	  // If there are no tasks (no current deadline), wait for the first request to the scheduler
+	  if(nextDeadline == NO_DEADLINE){
+		  requestMessage = _msgq_receive(requestQueue, 0);
+		  _handleSchedulerRequest(requestMessage);
+		  _msg_free(requestMessage);
+	  }
+	  // Otherwise, wait until a request arrives or until the current deadline is reached
+	  else{
+		  //requestMessage = _msgq_receive_until(requestQueue, ...);
+	  }
+
 #ifdef PEX_USE_RTOS   
   }
 #endif    
@@ -125,6 +139,8 @@ void runSerialHandler(os_task_param_t task_init_data)
 			_handleInterruptMessage((InterruptMessagePtr) receivedMessage, g_Handler);
 		}
 
+		_msg_free(receivedMessage);
+
 		// Unlock the handler for user access
 		_mutex_unlock(&g_HandlerMutex);
 
@@ -133,7 +149,9 @@ void runSerialHandler(os_task_param_t task_init_data)
 	#endif
 }
 
-
+/*=============================================================
+                    SCHEDULER INTERFACE TASK
+ ==============================================================*/
 
 void runSchedulerInterface(os_task_param_t task_init_data)
 {
