@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <mqx.h>
 #include <message.h>
+#include <sem.h>
 
 #ifndef SOURCES_SCHEDULER_H_
 #define SOURCES_SCHEDULER_H_
@@ -12,6 +13,8 @@
  ==============================================================*/
 
 #define NO_DEADLINE 0
+#define MAX_CONCURRENT_REQUESTS 100
+#define MIN_RESPONSE_QUEUE_ID 20
 
 /*=============================================================
                       EXPORTED TYPES
@@ -56,6 +59,16 @@ typedef struct TaskDeleteMessage{
 	MessageType MessageType;
 	_task_id TaskId;
 } TaskDeleteMessage, * TaskDeleteMessagePtr;
+
+typedef struct TaskCreateResponseMessage{
+	MESSAGE_HEADER_STRUCT HEADER;
+	_task_id TaskId;
+} TaskCreateResponseMessage, * TaskCreateResponseMessagePtr;
+
+typedef struct TaskDeleteResponseMessage{
+	MESSAGE_HEADER_STRUCT HEADER;
+	bool Result;
+} TaskDeleteResponseMessage, * TaskDeleteResponseMessagePtr;
 
 typedef struct TaskListMessage{
 	MESSAGE_HEADER_STRUCT HEADER;
