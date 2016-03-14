@@ -115,7 +115,7 @@
 #endif
 
 #ifndef MQX_USE_SEMAPHORES
-#define MQX_USE_SEMAPHORES                  0
+#define MQX_USE_SEMAPHORES                  1
 #endif
 
 #ifndef MQX_USE_SW_WATCHDOGS
