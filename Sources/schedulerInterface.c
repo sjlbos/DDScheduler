@@ -62,6 +62,7 @@ void prettyPrintTaskList(TaskList taskList){
 //handles the different commands that the user can input
 bool HandleCommand(char* outputString){
 	//parse the input string
+	printf("Received string: %s\n", outputString);
 	switch(outputString[0]){
 		case 'c'://task create
 			if(_handleCreate(outputString) == 0) return false;

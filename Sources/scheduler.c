@@ -19,7 +19,8 @@ void _initializeSchedulerMessagePools(uint32_t initialSize, uint32_t growthRate,
 	g_SchedulerRequestMessagePool = _msgpool_create(sizeof(SchedulerRequestMessage), initialSize, growthRate, maxSize);
 	g_TaskCreateMessagePool = _msgpool_create(sizeof(TaskCreateMessage), initialSize, growthRate, maxSize);
 	g_TaskDeleteMessagePool = _msgpool_create(sizeof(TaskDeleteMessage), initialSize, growthRate, maxSize);
-
+	//printf(MSGPOOL_MESSAGE_SIZE_TOO_SMALL, MQX_OUT_OF_MEMORY, MSGPOOL_OUT_OF_POOLS);
+	_mqx_uint error = _task_get_error();
 	// Check that initialization succeeded
 	if(g_SchedulerRequestMessagePool == MSGPOOL_NULL_POOL_ID ||
 			g_TaskCreateMessagePool == MSGPOOL_NULL_POOL_ID ||
