@@ -128,11 +128,47 @@ static SchedulerRequestMessagePtr _initializeRequestOverdueMessage(_queue_id res
 }
 
 /*=============================================================
-                      TASK LIST MANAGEMENT
+                      TASK MANAGEMENT
  ==============================================================*/
 
+static _task_id _createTask(uint32_t templateIndex, uin32_t deadline){
+	return 0;
+}
+
+static bool _deleteTask(_task_id taskId){
+	return false;
+}
+
+static TaskList _getCopyOfActiveTasks(){
+	return NULL;
+}
+
+static TaskList _getCopyOfOverdueTasks(){
+	return NULL;
+}
+
 /*=============================================================
-                      INTERNAL INTERFACE
+                           HANDLERS
+ ==============================================================*/
+
+static void _handleCreateTaskMessage(TaskCreateMessagePtr message){
+
+}
+
+static void _handleDeleteTaskMessage(TaskDeleteMessagePtr message){
+
+}
+
+static void _handleRequestActiveTasksMessage(SchedulerRequestMessagePtr message){
+
+}
+
+static void _handleRequestOverdueTasksMessage(SchedulerRequestOverduePtr message){
+
+}
+
+/*=============================================================
+                       INTERNAL INTERFACE
  ==============================================================*/
 
 void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize){
@@ -142,7 +178,23 @@ void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint
 }
 
 void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage){
-
+	switch(requestMessage->MessageType){
+		case CREATE:
+			_handleCreateTaskMessage((TaskCreateMessagePtr) requestMessage);
+			break;
+		case DELETE:
+			_handleDeleteTaskMessage((TaskDeleteMessagePtr) requestMessage);
+			break;
+		case REQUEST_ACTIVE:
+			_handleRequestActiveTasksMessage(requestMessage);
+			break;
+		case REQUEST_OVERDUE:
+			_handleRequestOverdueTasksMessage(requestMessage);
+			break;
+		default:
+			printf("Encountered an invalid request type.\n");
+			_task_block();
+	}
 }
 
 void _handleDeadlineReached(){
