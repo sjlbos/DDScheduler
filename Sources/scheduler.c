@@ -132,7 +132,7 @@ static SchedulerRequestMessagePtr _initializeRequestOverdueMessage(_queue_id res
                       TASK MANAGEMENT
  ==============================================================*/
 
-static _task_id _createTask(uint32_t templateIndex, uin32_t deadline){
+static _task_id _createTask(uint32_t templateIndex, uint32_t deadline){
 	return 0;
 }
 
@@ -164,7 +164,7 @@ static void _handleRequestActiveTasksMessage(SchedulerRequestMessagePtr message)
 
 }
 
-static void _handleRequestOverdueTasksMessage(SchedulerRequestOverduePtr message){
+static void _handleRequestOverdueTasksMessage(SchedulerRequestMessagePtr message){
 
 }
 
