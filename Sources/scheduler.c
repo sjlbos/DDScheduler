@@ -10,6 +10,9 @@ static _pool_id g_TaskCreateMessagePool;
 static _pool_id g_TaskDeleteMessagePool;
 static void* g_RequestSemaphore;
 
+static TaskList ActiveTasks;
+static TaskList OverdueTasks;
+
 /*=============================================================
                       INITIALIZATION
  ==============================================================*/
@@ -132,7 +135,86 @@ static SchedulerRequestMessagePtr _initializeRequestOverdueMessage(_queue_id res
                       TASK MANAGEMENT
  ==============================================================*/
 
+static SchedulerTaskPtr _initializeSchedulerTask(){
+	SchedulerTaskPtr task;
+	if(!(task = (SchedulerTaskPtr) malloc(sizeof(SchedulerTask)))){
+		printf("Unable to allocate memory for scheduler task struct.");
+		_task_block();
+	}
+	memset(task, 0, sizeof(SchedulerTask));
+	return task;
+}
+
+static TaskListNodePtr _initializeTaskListNode(){
+	TaskListNodePtr node;
+	if(!(node = (TaskListNodePtr) malloc(sizeof(TaskListNode)))){
+		printf("Unable to allocate memory for task list node struct.\n");
+		_task_block();
+	}
+	memset(node, 0, sizeof(TaskListNode));
+	return node;
+}
+
+static void _addTaskToSequentialList(SchedulerTaskPtr task, TaskList* list){
+
+	// Initialize a new list node
+	TaskListNodePtr node = _initializeTaskListNode();
+	node->task = task;
+
+	// If the list is empty, set this node as the first node
+	if (*list = NULL){
+		*list = node;
+	}
+	// Otherwise, add it to the end of the list
+	else{
+		TaskListNodePtr currentNode = *list;
+		for(;;){
+			if(currentNode->nextNode == NULL){
+				currentNode->nextNode = node;
+				node->prevNode = currentNode;
+				break;
+			}
+			currentNode = currentNode->nextNode;
+		}
+	}
+}
+
+static void _addTaskToDeadlinePrioritizedList(SchedulerTaskPtr newTask, TaskList* list){
+	// Initialize a new list node
+	TaskListNodePtr node = _initializeTaskListNode();
+	node->task = newTask;
+
+	// If the list is empty, set this node as the first node
+	if (*list = NULL){
+		*list = node;
+	}
+	// Otherwise, add the node in a position such that the list remains sorted by task priority
+	else{
+		TaskListNodePtr currentNode = *list;
+		for(;;){
+			// If the new task preempts the current task, place the new task before the current task in the list
+			if(newTask->Deadline < currentNode->task->Deadline){
+				node->nextNode = currentNode;
+				node->prevNode = currentNode->prevNode;
+				if(currentNode->prevNode != NULL){
+					currentNode->prevNode->nextNode = node;
+				}
+				currentNode->prevNode = node;
+				break;
+			}
+			// Otherwise, if we have reached the end of list without preempting any tasks, add the new task to the end of the list
+			else if (currentNode->nextNode == NULL){
+				currentNode->nextNode = node;
+				node->prevNode = currentNode;
+				break;
+			}
+			currentNode = currentNode->nextNode;
+		}
+	}
+}
+
 static _task_id _createTask(uint32_t templateIndex, uint32_t deadline){
+
 	return 0;
 }
 
@@ -314,7 +396,7 @@ bool dd_return_active_list(TaskList* taskList){
 	}
 
 	// Wait for response from scheduler
-	TaskListMessagePtr response = (TaskListMessagePtr) _msgq_receive(responseQueue, 0);
+	TaskListResponseMessagePtr response = (TaskListResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
 		printf("Failed to receive a task list response from the scheduler.\n");
 		_task_block();
@@ -357,7 +439,7 @@ bool dd_return_overdue_list(TaskList* taskList){
 	}
 
 	// Wait for response from scheduler
-	TaskListMessagePtr response = (TaskListMessagePtr) _msgq_receive(responseQueue, 0);
+	TaskListResponseMessagePtr response = (TaskListResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
 		printf("Failed to receive a task list response from the scheduler.\n");
 		_task_block();

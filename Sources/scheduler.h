@@ -20,11 +20,19 @@
                       EXPORTED TYPES
  ==============================================================*/
 
+typedef void (*TaskEntryPoint)();
+
+typedef struct TaskDefinition{
+	char* Name;
+	TaskEntryPoint EntryPoint;
+	uint32_t Period;
+} TaskDefinition, * TaskDefinitionPtr;
+
 typedef struct SchedulerTask{
-	uint32_t taskId;
-	uint32_t deadline;
-	uint32_t taskType;
-	uint32_t createdAt;
+	uint32_t TaskId;
+	uint32_t Deadline;
+	uint32_t TaskType;
+	uint32_t CreatedAt;
 } SchedulerTask, *SchedulerTaskPtr;
 
 typedef struct TaskListNode{
@@ -70,10 +78,19 @@ typedef struct TaskDeleteResponseMessage{
 	bool Result;
 } TaskDeleteResponseMessage, * TaskDeleteResponseMessagePtr;
 
-typedef struct TaskListMessage{
+typedef struct TaskListResponseMessage{
 	MESSAGE_HEADER_STRUCT HEADER;
 	TaskList Tasks;
-} TaskListMessage, * TaskListMessagePtr;
+} TaskListResponseMessage, * TaskListResponseMessagePtr;
+
+typedef union SchedulerMessage{
+	SchedulerRequestMessage RequestMessage;
+	TaskCreateMessage CreateMessage;
+	TaskDeleteMessage DeleteMessage;
+	TaskCreateResponseMessage CreateResponse;
+	TaskDeleteResponseMessage DeleteResponse;
+	TaskListResponseMessage TaskListResponse;
+} SchedulerMessage, *SchedulerMessagePtr;
 
 /*=============================================================
                       USER TASK INTERFACE

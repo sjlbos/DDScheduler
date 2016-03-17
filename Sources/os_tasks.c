@@ -23,6 +23,8 @@ _pool_id g_SerialMessagePool;		// A message pool for messages sent between the h
 HandlerPtr g_Handler;				// The global handler instance
 MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's internal state
 
+
+
 /*=============================================================
                        HELPER FUNCTIONS
  ==============================================================*/
@@ -201,6 +203,27 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 	//release read
 	Close();
 }
+
+/*=============================================================
+                          USER TASKS
+ ==============================================================*/
+
+void runPeriodicTask(){
+
+}
+
+void runOnceTask(){
+
+}
+
+/*=============================================================
+                     USER TASK DEFINITIONS
+ ==============================================================*/
+
+const TaskDefinition USER_TASKS[] = {
+		{"Periodic Task", runPeriodicTask, 500},
+		{"Single Time Task", runOnceTask, 0}
+};
 
 /* END os_tasks */
 

@@ -50,10 +50,10 @@ void _handleOverdue(){
 //print out tasks in a nice format
 void prettyPrintTaskList(TaskList taskList){
 	do{
-			printf("Task ID:      %u\n", taskList->task->taskId);
-			printf("Task Deadline:%u\n", taskList->task->deadline);
-			printf("Task Type:    %u\n", taskList->task->taskType);
-			printf("Task Created: %u\n\n", taskList->task->createdAt);
+			printf("Task ID:      %u\n", taskList->task->TaskId);
+			printf("Task Deadline:%u\n", taskList->task->Deadline);
+			printf("Task Type:    %u\n", taskList->task->TaskType);
+			printf("Task Created: %u\n\n", taskList->task->CreatedAt);
 			taskList = taskList->nextNode;
 	}while(taskList!=NULL);
 	return;
