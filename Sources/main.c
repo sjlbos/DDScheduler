@@ -44,6 +44,7 @@
 #include "myUART.h"
 #include "serialHandler.h"
 #include "SchedulerInterface.h"
+#include "monitor.h"
 #if CPU_INIT_CONFIG
   #include "Init_Config.h"
 #endif

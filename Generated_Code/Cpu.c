@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K64P144M120SF5RM, Rev.2, January 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2016-03-13, 13:24, # CodeGen: 3
+**     Date/Time   : 2016-03-16, 17:43, # CodeGen: 4
 **     Abstract    :
 **
 **     Settings    :
@@ -124,6 +124,9 @@ void Components_Init(void)
   /*! SchedulerInterface Auto initialization start */ 
   (void)SchedulerInterface_Init();
   /*! SchedulerInterface Auto initialization end */                       
+  /*! monitor Auto initialization start */ 
+  (void)monitor_Init();
+  /*! monitor Auto initialization end */                       
 }
 #endif /* CPU_COMPONENTS_INIT */
 

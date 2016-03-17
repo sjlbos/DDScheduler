@@ -225,6 +225,35 @@ const TaskDefinition USER_TASKS[] = {
 		{"Single Time Task", runOnceTask, 0}
 };
 
+/*
+** ===================================================================
+**     Callback    : runMonitor
+**     Description : Task function entry.
+**     Parameters  :
+**       task_init_data - OS task parameter
+**     Returns : Nothing
+** ===================================================================
+*/
+void runMonitor(os_task_param_t task_init_data)
+{
+  /* Write your local variable definition here */
+  
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+    /* Write your code here ... */
+    
+    
+    OSA_TimeDelay(10);                 /* Example code (for task release) */
+   
+    
+    
+    
+#ifdef PEX_USE_RTOS   
+  }
+#endif    
+}
+
 /* END os_tasks */
 
 #ifdef __cplusplus

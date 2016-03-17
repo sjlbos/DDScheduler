@@ -16,6 +16,7 @@
 #include "myUART.h"
 #include "serialHandler.h"
 #include "SchedulerInterface.h"
+#include "monitor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +60,17 @@ void runSerialHandler(os_task_param_t task_init_data);
 ** ===================================================================
 */
 void runSchedulerInterface(os_task_param_t task_init_data);
+
+/*
+** ===================================================================
+**     Callback    : runMonitor
+**     Description : Task function entry.
+**     Parameters  :
+**       task_init_data - OS task parameter
+**     Returns : Nothing
+** ===================================================================
+*/
+void runMonitor(os_task_param_t task_init_data);
 
 /* END os_tasks */
 
