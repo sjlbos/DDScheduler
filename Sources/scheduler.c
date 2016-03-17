@@ -5,9 +5,7 @@
  ==============================================================*/
 
 static _queue_id g_RequestQueue;
-static _pool_id g_SchedulerRequestMessagePool;
-static _pool_id g_TaskCreateMessagePool;
-static _pool_id g_TaskDeleteMessagePool;
+static _pool_id g_SchedulerMessagePool;
 static void* g_RequestSemaphore;
 
 static TaskList ActiveTasks;
@@ -17,19 +15,14 @@ static TaskList OverdueTasks;
                       INITIALIZATION
  ==============================================================*/
 
-static void _initializeSchedulerMessagePools(uint32_t initialSize, uint32_t growthRate, uint32_t maxSize){
+static void _initializeSchedulerMessagePool(uint32_t initialSize, uint32_t growthRate, uint32_t maxSize){
 
 	// Initialize message pools
-	g_SchedulerRequestMessagePool = _msgpool_create(sizeof(SchedulerRequestMessage), initialSize, growthRate, maxSize);
-	g_TaskCreateMessagePool = _msgpool_create(sizeof(TaskCreateMessage), initialSize, growthRate, maxSize);
-	g_TaskDeleteMessagePool = _msgpool_create(sizeof(TaskDeleteMessage), initialSize, growthRate, maxSize);
-	//printf(MSGPOOL_MESSAGE_SIZE_TOO_SMALL, MQX_OUT_OF_MEMORY, MSGPOOL_OUT_OF_POOLS);
-	_mqx_uint error = _task_get_error();
+	g_SchedulerMessagePool = _msgpool_create(sizeof(SchedulerMessage), initialSize, growthRate, maxSize);
+
 	// Check that initialization succeeded
-	if(g_SchedulerRequestMessagePool == MSGPOOL_NULL_POOL_ID ||
-			g_TaskCreateMessagePool == MSGPOOL_NULL_POOL_ID ||
-			g_TaskDeleteMessagePool == MSGPOOL_NULL_POOL_ID){
-		printf("Failed to create a scheduler message pool.\n");
+	if(g_SchedulerMessagePool == MSGPOOL_NULL_POOL_ID){
+		printf("Failed to create the scheduler message pool.\n");
 		_task_block();
 	}
 }
@@ -64,15 +57,24 @@ static uint32_t _getResponseQueueId(){
 	return MIN_RESPONSE_QUEUE_ID + _sem_get_value(g_RequestSemaphore);
 }
 
+static SchedulerMessagePtr _initializeSchedulerMessage(){
+
+	SchedulerMessagePtr message = (SchedulerMessagePtr)_msg_alloc(g_SchedulerMessagePool);
+
+	if (message == NULL){
+		printf("Could not allocate a TaskCreateMessage.\n");
+		_task_block();
+	}
+
+	memset(message, 0, sizeof(SchedulerMessage));
+
+	return message;
+}
+
 static TaskCreateMessagePtr _initializeTaskCreateMessage(uint32_t templateIndex, uint32_t deadline, _queue_id responseQueue){
 	// Allocate message
-	TaskCreateMessagePtr message = (TaskCreateMessagePtr)_msg_alloc(g_TaskCreateMessagePool);
+	TaskCreateMessagePtr message = (TaskCreateMessagePtr) _initializeSchedulerMessage();
 
-	// Ensure allocation succeeded
-	if (message == NULL) {
-	 printf("Could not allocate a TaskCreateMessage.\n");
-	 _task_block();
-	}
 
 	// Set message fields
 	message->HEADER.TARGET_QID = g_RequestQueue;
@@ -85,37 +87,18 @@ static TaskCreateMessagePtr _initializeTaskCreateMessage(uint32_t templateIndex,
 }
 
 static TaskDeleteMessagePtr _initializeTaskDeleteMessage(_task_id taskId, _queue_id responseQueue){
-	// Allocate message
-	TaskDeleteMessagePtr message = (TaskDeleteMessagePtr)_msg_alloc(g_TaskDeleteMessagePool);
-
-	// Ensure allocation succeeded
-	if (message == NULL) {
-	 printf("Could not allocate a TaskDeleteMessage.\n");
-	 _task_block();
-	}
-
-	// Set message fields
+	TaskDeleteMessagePtr message = (TaskDeleteMessagePtr) _initializeSchedulerMessage();
 	message->HEADER.TARGET_QID = g_RequestQueue;
 	message->HEADER.SOURCE_QID = responseQueue;
 	message->MessageType = DELETE;
 	message->TaskId = taskId;
-
 	return message;
 }
 
 static SchedulerRequestMessagePtr _initializeSchedulerRequestMessage(_queue_id responseQueue){
-	// Allocate message
-	SchedulerRequestMessagePtr message = (SchedulerRequestMessagePtr)_msg_alloc(g_SchedulerRequestMessagePool);
-
-	// Ensure allocation succeeded
-	if (message == NULL) {
-	 printf("Could not allocate a SchedulerRequestMessage.\n");
-	 _task_block();
-	}
-
+	SchedulerRequestMessagePtr message = (SchedulerRequestMessagePtr) _initializeSchedulerMessage();
 	message->HEADER.TARGET_QID = g_RequestQueue;
 	message->HEADER.SOURCE_QID = responseQueue;
-
 	return message;
 }
 
@@ -256,7 +239,7 @@ static void _handleRequestOverdueTasksMessage(SchedulerRequestMessagePtr message
 
 void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize){
 	g_RequestQueue = requestQueue;
-	_initializeSchedulerMessagePools(initialPoolSize, poolGrowthRate, maxPoolSize);
+	_initializeSchedulerMessagePool(initialPoolSize, poolGrowthRate, maxPoolSize);
 	_initializeRequestSemaphore();
 }
 
