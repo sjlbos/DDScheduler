@@ -9,6 +9,7 @@
 #include "handler.h"
 #include "scheduler.h"
 #include "schedulerInterface.h"
+#include "monitor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -222,40 +223,36 @@ void runOnceTask(){
 
 const TaskDefinition USER_TASKS[] = {
 		{"Periodic Task", runPeriodicTask, 500},
-		{"Single Time Task", runOnceTask, 0}
+		{"Single Time Task", runOnceTask, 0},
+		{"Scheduler Interface Task", runPeriodicTask, 10000}
 };
 
-/*
-** ===================================================================
-**     Callback    : runMonitor
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
+
+/*=============================================================
+                    MONITOR TASK
+ ==============================================================*/
+
 void runMonitor(os_task_param_t task_init_data)
 {
-  /* Write your local variable definition here */
-  
+	g_ticks = 0;
+	g_milliseconds = 0;
+	uint32_t ticksPerMillisecond = _time_get_ticks_per_sec()*1000;
+
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-    /* Write your code here ... */
-    
-    
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-   
-    
-    
-    
+	  	 while(g_ticks < ticksPerMillisecond){
+	  		 g_ticks ++;
+	  	 }
+	  	 g_milliseconds ++;
+	  	 g_ticks = 0;
+
 #ifdef PEX_USE_RTOS   
   }
 #endif    
 }
 
-/* END os_tasks */
 
 #ifdef __cplusplus
-}  /* extern "C" */
+}
 #endif 
