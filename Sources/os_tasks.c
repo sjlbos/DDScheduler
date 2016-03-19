@@ -10,6 +10,7 @@
 #include "scheduler.h"
 #include "schedulerInterface.h"
 #include "monitor.h"
+#include "statusUpdate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -223,8 +224,7 @@ void runOnceTask(){
 
 const TaskDefinition USER_TASKS[] = {
 		{"Periodic Task", runPeriodicTask, 500},
-		{"Single Time Task", runOnceTask, 0},
-		{"Scheduler Interface Task", runPeriodicTask, 10000}
+		{"Single Time Task", runOnceTask, 0}
 };
 
 
@@ -252,6 +252,16 @@ void runMonitor(os_task_param_t task_init_data)
 #endif    
 }
 
+/*=============================================================
+                    STATUS UPDATE TASK
+ ==============================================================*/
+
+void runStatusUpdate(os_task_param_t task_init_data)
+{
+	uint32_t period = 10000;//period of status updates in ms
+	//uint32_t period = task_init_data[2];//to get from init data
+	StatusUpdate(period);
+}
 
 #ifdef __cplusplus
 }

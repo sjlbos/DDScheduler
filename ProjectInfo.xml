@@ -126,6 +126,7 @@
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\osa1.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\pin_init.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\serialHandler.c</PathName>
+      <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\statusUpdate.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\uart1.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\startup\system_MK64F12.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\startup.c</PathName>
@@ -284,6 +285,7 @@
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\osa1.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\pin_init.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\serialHandler.h</PathName>
+      <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\statusUpdate.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\uart1.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\CMSIS\Include\arm_common_tables.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\CMSIS\Include\arm_const_structs.h</PathName>

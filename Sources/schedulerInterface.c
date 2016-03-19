@@ -26,39 +26,6 @@ bool _handleDelete(char* outputString){
 	return dd_delete(taskId);
 }
 
-//provides feedback on active tasks
-void _handleActive(){
-	TaskList taskList;
-	dd_return_active_list(&taskList);
-	if(taskList == NULL) return;
-	printf("Active Tasks:\n");
-	prettyPrintTaskList(taskList);
-	free(taskList);
-	return;
-}
-
-//provides feedback on overdue tasks
-void _handleOverdue(){
-	TaskList taskList;
-	dd_return_overdue_list(&taskList);
-	if(taskList == NULL) return;
-	printf("OverDue Tasks:\n");
-	prettyPrintTaskList(taskList);
-	free(taskList);
-	return;
-}
-
-//print out tasks in a nice format
-void prettyPrintTaskList(TaskList taskList){
-	do{
-			printf("Task ID:      %u\n", taskList->task->TaskId);
-			printf("Task Deadline:%u\n", taskList->task->Deadline);
-			printf("Task Type:    %u\n", taskList->task->TaskType);
-			printf("Task Created: %u\n\n", taskList->task->CreatedAt);
-			taskList = taskList->nextNode;
-	}while(taskList!=NULL);
-	return;
-}
 
 //handles the different commands that the user can input
 bool HandleCommand(char* outputString){

@@ -5,13 +5,18 @@
 #include <mutex.h>
 #include <ctype.h>
 #include <string.h>
+
 /*=============================================================
                       INTERNAL INTERFACE
  ==============================================================*/
-_task_id _handleCreate(char* outputString);
-bool _handleDelete(char* outputString);
+
+void _handleActive();
+void _handlerOverdue();
+void _handleCPUUtilization();
+void _prettyPrintTaskList();
 
 /*=============================================================
-                      SCHEDULER INTERFACE
+                      STATUS UPDATE INTERFACE
  ==============================================================*/
-bool HandleCommand(char* outputString);
+
+void StatusUpdate();
