@@ -14,9 +14,9 @@
 #include "MainTask.h"
 #include "ddScheduler.h"
 #include "myUART.h"
-#include "serialHandler.h"
-#include "SchedulerInterface.h"
 #include "monitor.h"
+#include "schedulerInterface.h"
+#include "serialHandler.h"
 #include "statusUpdate.h"
 
 #ifdef __cplusplus
@@ -39,10 +39,6 @@ extern "C" {
 #define INTERRUPT_MESSAGE_POOL_GROWTH_RATE 1
 #define INTERRUPT_MESSAGE_POOL_MAX_SIZE 16
 
-#define SCHEDULER_MESSAGE_POOL_INITIAL_SIZE 1
-#define SCHEDULER_MESSAGE_POOL_GROWTH_RATE 1
-#define SCHEDULER_MESSAGE_POOL_MAX_SIZE 16
-
 
 /*=============================================================
                      TASK ENTRY POINTS
@@ -50,39 +46,11 @@ extern "C" {
 
 void runScheduler(os_task_param_t task_init_data);
 void runSerialHandler(os_task_param_t task_init_data);
-
-/*
-** ===================================================================
-**     Callback    : runSchedulerInterface
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
 void runSchedulerInterface(os_task_param_t task_init_data);
-
-/*
-** ===================================================================
-**     Callback    : runMonitor
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
 void runMonitor(os_task_param_t task_init_data);
-
-/*
-** ===================================================================
-**     Callback    : runStatusUpdate
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
 void runStatusUpdate(os_task_param_t task_init_data);
+void runPeriodicTask();
+void runOnceTask();
 
 /* END os_tasks */
 

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <mqx.h>
+#include <mutex.h>
 #include <message.h>
-#include <sem.h>
 
 #ifndef SOURCES_SCHEDULER_H_
 #define SOURCES_SCHEDULER_H_
@@ -12,9 +12,13 @@
                       	  CONSTANTS
  ==============================================================*/
 
+#define SCHEDULER_MESSAGE_POOL_INITIAL_SIZE 8
+#define SCHEDULER_MESSAGE_POOL_GROWTH_RATE 2
+#define SCHEDULER_MESSAGE_POOL_MAX_SIZE 32
+
 #define NO_DEADLINE 0
-#define MAX_CONCURRENT_REQUESTS 100
 #define MIN_RESPONSE_QUEUE_ID 20
+#define MAX_RESPONSE_QUEUE_ID 100
 
 /*=============================================================
                       EXPORTED TYPES
@@ -105,7 +109,7 @@ bool dd_return_overdue_list(TaskList* taskList);
                       INTERNAL INTERFACE
  ==============================================================*/
 
-void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize);
+void _initializeScheduler(_queue_id requestQueue, const TaskDefinition taskDefinitions[], uint32_t taskDefinitionCount);
 void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage);
 void _handleDeadlineReached();
 uint32_t _getNextDeadline();

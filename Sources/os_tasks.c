@@ -9,8 +9,6 @@
 #include "handler.h"
 #include "scheduler.h"
 #include "schedulerInterface.h"
-#include "monitor.h"
-#include "statusUpdate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +23,15 @@ _pool_id g_SerialMessagePool;		// A message pool for messages sent between the h
 HandlerPtr g_Handler;				// The global handler instance
 MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's internal state
 
+/*=============================================================
+                     USER TASK DEFINITIONS
+ ==============================================================*/
 
+const uint32_t USER_TASK_COUNT = 2;
+const TaskDefinition USER_TASKS[] = {
+		{"Periodic Task", runPeriodicTask, 500},
+		{"Single Time Task", runOnceTask, 0}
+};
 
 /*=============================================================
                        HELPER FUNCTIONS
@@ -49,10 +55,7 @@ void runScheduler(os_task_param_t task_init_data)
 	printf("\r\nScheduler task started.\r\n");
 
 	_queue_id requestQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
-	_initializeScheduler(requestQueue,
-			SCHEDULER_MESSAGE_POOL_INITIAL_SIZE,
-			SCHEDULER_MESSAGE_POOL_GROWTH_RATE,
-			SCHEDULER_MESSAGE_POOL_MAX_SIZE);
+	_initializeScheduler(requestQueue, USER_TASKS, USER_TASK_COUNT);
 
 #ifdef PEX_USE_RTOS
   while (1) {
@@ -217,16 +220,6 @@ void runPeriodicTask(){
 void runOnceTask(){
 
 }
-
-/*=============================================================
-                     USER TASK DEFINITIONS
- ==============================================================*/
-
-const TaskDefinition USER_TASKS[] = {
-		{"Periodic Task", runPeriodicTask, 500},
-		{"Single Time Task", runOnceTask, 0}
-};
-
 
 /*=============================================================
                     MONITOR TASK

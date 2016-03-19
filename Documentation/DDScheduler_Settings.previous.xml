@@ -246,5 +246,18 @@
       <EmptySection_DummyValue />
     </Events>
   </Bean>
+  <Bean name="statusUpdate" type="OS_Task">
+    <Enabled v="Y" />
+    <Properties>
+      <Name v="statusUpdate" />
+      <Component_version v="1.3.0" />
+    </Properties>
+    <Methods>
+      <EmptySection_DummyValue />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
 </PE_PROJECT_SETTINGS_DOCUMENTATION>
 

@@ -43,43 +43,19 @@
 #include "myUART.h"
 #include "serialHandler.h"
 #include "SchedulerInterface.h"
-#include "monitor.h"
-#include "statusUpdate.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
 
 
-/*
-** ===================================================================
-**     Callback    : myUART_RxCallback
-**     Description : This callback occurs when data are received.
-**     Parameters  :
-**       instance - The UART instance number.
-**       uartState - A pointer to the UART driver state structure
-**       memory.
-**     Returns : Nothing
-** ===================================================================
-*/
 void myUART_RxCallback(uint32_t instance, void * uartState);
 
-/* END Events */
 
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif 
 
 #endif 
-/* ifndef __Events_H*/
-/*!
-** @}
-*/
-/*
-** ###################################################################
-**
-**     This file was created by Processor Expert 10.5 [05.21]
-**     for the Freescale Kinetis series of microcontrollers.
-**
-** ###################################################################
-*/
+
