@@ -33,6 +33,7 @@ const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
 _queue_id _initializeQueue(int queueNum){
 	_queue_id queueId = _msgq_open(queueNum, 0);
 	if(queueId == 0){
+		_mqx_uint error = _task_get_error();
 		printf("Failed to open queue %d.\n", queueNum);
 		_task_block();
 	}
@@ -47,7 +48,7 @@ void runScheduler(os_task_param_t task_init_data)
 {
 	printf("\r\nScheduler task started.\r\n");
 
-	_queue_id requestQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
+	_queue_id requestQueue = _initializeQueue(SCHEDULER_INTERFACE_QUEUE_ID);
 	_initializeScheduler(requestQueue, USER_TASKS, USER_TASK_COUNT);
 
 #ifdef PEX_USE_RTOS
@@ -163,7 +164,7 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 	memset(outputString, 0, HANDLER_BUFFER_SIZE + 1);
 
 	// Create a queue to receive messages
-	_queue_id receiveQueue = _initializeQueue(10);
+	_queue_id receiveQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
 
 	//Try to get read permission
 	if(!OpenR(receiveQueue)){

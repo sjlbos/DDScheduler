@@ -130,7 +130,7 @@
  * MGCT: <option type="number"/>
  */
 #ifndef BSP_DEFAULT_MAX_MSGQS
-    #define BSP_DEFAULT_MAX_MSGQS                               (16L)
+    #define BSP_DEFAULT_MAX_MSGQS                               (100L)
 #endif
 
 /*
