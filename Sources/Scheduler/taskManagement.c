@@ -21,6 +21,7 @@ static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline);
 
 // Task Priority
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task);
+static void _unblockTask(_task_id taskId);
 static void _setTaskPriorityTo(uint32_t priority, _task_id taskId);
 
 // Task List Management
@@ -56,10 +57,6 @@ _task_id createTask(uint32_t templateIndex, uint32_t msToDeadline){
 	}
 
 	_scheduleNewTask(newTaskId, msToDeadline);
-
-	// Unblock task
-	TD_STRUCT_PTR taskDescriptor = _task_get_td(newTaskId);
-	_task_ready(taskDescriptor);
 
 	return newTaskId;
 }
@@ -171,7 +168,7 @@ static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline){
 }
 
 /*=============================================================
-                    TASK PRIORITY MANAGEMENT
+                    RUNNING TASK MANAGEMENT
  ==============================================================*/
 
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task){
@@ -183,7 +180,13 @@ static void _setCurrentlyRunningTask(SchedulerTaskPtr task){
 	g_CurrentTask = task;
 	if(g_CurrentTask != NULL){
 		_setTaskPriorityTo(RUNNING_TASK_PRIORITY, g_CurrentTask->TaskId);
+		_unblockTask(g_CurrentTask->TaskId);
 	}
+}
+
+static void _unblockTask(_task_id taskId){
+	TD_STRUCT_PTR taskDescriptor = _task_get_td(taskId);
+	_task_ready(taskDescriptor);
 }
 
 static void _setTaskPriorityTo(uint32_t priority, _task_id taskId){

@@ -160,7 +160,7 @@ static TaskListResponseMessagePtr _initializeTaskListResponseMessage(_queue_id r
 }
 
 /*=============================================================
-                           HANDLERS
+                       REQUEST HANDLERS
  ==============================================================*/
 
 static void _handleCreateTaskMessage(TaskCreateMessagePtr message){
@@ -299,11 +299,19 @@ _task_id dd_tcreate(uint32_t templateIndex, uint32_t deadline){
 	return newTaskId;
 }
 
-bool dd_delete(_task_id task){
+bool dd_delete(_task_id taskId){
+	TaskDeleteMessagePtr deleteMessage;
+	_queue_id responseQueue;
+	bool taskIsDeletingSelf = (_task_get_id() == taskId);
 
-	// Initialize response queue and delete message
-	_queue_id responseQueue = _initializeQueue(_getResponseQueueId());
-	TaskDeleteMessagePtr deleteMessage = _initializeTaskDeleteMessage(task, responseQueue);
+	if(taskIsDeletingSelf){
+		deleteMessage = _initializeTaskDeleteMessage(taskId, MSGQ_NULL_QUEUE_ID);
+	}
+	else{
+		// Initialize response queue and delete message
+		responseQueue = _initializeQueue(_getResponseQueueId());
+		deleteMessage = _initializeTaskDeleteMessage(taskId, responseQueue);
+	}
 
 	// Put delete message on scheduler's request queue
 	if(_msgq_send(deleteMessage) != TRUE){
@@ -311,24 +319,27 @@ bool dd_delete(_task_id task){
 		_task_block();
 	}
 
-	// Wait for response from scheduler
-	TaskDeleteResponseMessagePtr response = (TaskDeleteResponseMessagePtr) _msgq_receive(responseQueue, 0);
-	if(response == NULL){
-		printf("Failed to receive a delete task response from the scheduler.\n");
-		_task_block();
+	if(!taskIsDeletingSelf){
+		// Wait for response from scheduler
+		TaskDeleteResponseMessagePtr response = (TaskDeleteResponseMessagePtr) _msgq_receive(responseQueue, 0);
+		if(response == NULL){
+			printf("Failed to receive a delete task response from the scheduler.\n");
+			_task_block();
+		}
+
+		// Get the request result
+		bool result = response->Result;
+
+		// Free the response message and destroy the queue
+		_msg_free(response);
+		if(_msgq_close(responseQueue) != TRUE){
+			printf("Unable to close response queue.\n");
+			_task_block();
+		}
+		return result;
 	}
 
-	// Get the request result
-	bool result = response->Result;
-
-	// Free the response message and destroy the queue
-	_msg_free(response);
-	if(_msgq_close(responseQueue) != TRUE){
-		printf("Unable to close response queue.\n");
-		_task_block();
-	}
-
-	return result;
+	_task_block();
 }
 
 bool dd_return_active_list(TaskList* taskList){

@@ -32,7 +32,7 @@ const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
 
 _queue_id _initializeQueue(int queueNum){
 	_queue_id queueId = _msgq_open(queueNum, 0);
-	if(queueId == 0){
+	if(queueId == MSGQ_NULL_QUEUE_ID){
 		printf("Failed to open queue %d.\n", queueNum);
 		_task_block();
 	}
