@@ -1,14 +1,5 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <mqx.h>
-
-#include "Cpu.h"
-#include "Events.h"
-#include "rtos_main_task.h"
 #include "os_tasks.h"
-#include "handler.h"
-#include "scheduler.h"
-#include "schedulerInterface.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +18,12 @@ MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's i
                      USER TASK DEFINITIONS
  ==============================================================*/
 
+#define USER_TASK_STACK_SIZE 700
+
 const uint32_t USER_TASK_COUNT = 2;
-const TaskDefinition USER_TASKS[] = {
-		{"Periodic Task", runPeriodicTask, 500},
-		{"Single Time Task", runOnceTask, 0}
+const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
+		{ 0, runPeriodicTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", NULL, 0, 0},
+		{ 0, runOnceTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", NULL, 0, 0}
 };
 
 /*=============================================================

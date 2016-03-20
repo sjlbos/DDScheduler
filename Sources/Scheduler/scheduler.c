@@ -8,8 +8,9 @@ static _queue_id g_RequestQueue;
 static _pool_id g_SchedulerMessagePool;
 static MUTEX_STRUCT g_QueueNumMutex;
 
-static TaskDefinition* g_TaskDefinitions;
-static uint32_t g_TaskDefinitionCount;
+static TASK_TEMPLATE_STRUCT* g_TaskTemplates;
+static uint32_t g_TaskTemplateCount;
+static SchedulerTaskPtr g_CurrentTask;
 static TaskList g_ActiveTasks;
 static TaskList g_OverdueTasks;
 
@@ -95,13 +96,12 @@ static TaskCreateMessagePtr _initializeTaskCreateMessage(uint32_t templateIndex,
 	// Allocate message
 	TaskCreateMessagePtr message = (TaskCreateMessagePtr) _initializeSchedulerMessage();
 
-
 	// Set message fields
 	message->HEADER.TARGET_QID = g_RequestQueue;
 	message->HEADER.SOURCE_QID = responseQueue;
 	message->MessageType = CREATE;
 	message->TemplateIndex = templateIndex;
-	message->Deadline = deadline;
+	message->TicksToDeadline = deadline;
 
 	return message;
 }
@@ -131,6 +131,30 @@ static SchedulerRequestMessagePtr _initializeRequestActiveMessage(_queue_id resp
 static SchedulerRequestMessagePtr _initializeRequestOverdueMessage(_queue_id responseQueue){
 	SchedulerRequestMessagePtr message = _initializeSchedulerRequestMessage(responseQueue);
 	message->MessageType = REQUEST_OVERDUE;
+	return message;
+}
+
+static TaskCreateResponseMessagePtr _initializeTaskCreateResponseMessage(_queue_id responseQueue, _task_id taskId){
+	TaskCreateResponseMessagePtr message = (TaskCreateResponseMessagePtr) _initializeSchedulerMessage();
+	message->HEADER.TARGET_QID = responseQueue;
+	message->HEADER.SOURCE_QID = g_RequestQueue;
+	message->TaskId = taskId;
+	return message;
+}
+
+static TaskDeleteResponseMessagePtr _initializeTaskDeleteResponseMessage(_queue_id responseQueue, bool result){
+	TaskDeleteResponseMessagePtr message = (TaskDeleteResponseMessagePtr) _initializeSchedulerMessage();
+	message->HEADER.TARGET_QID = responseQueue;
+	message->HEADER.SOURCE_QID = g_RequestQueue;
+	message->Result = result;
+	return message;
+}
+
+static TaskListResponseMessagePtr _initializeTaskListResponseMessage(_queue_id responseQueue, TaskList taskList){
+	TaskListResponseMessagePtr message = (TaskListResponseMessagePtr) _initializeSchedulerMessage();
+	message->HEADER.TARGET_QID = responseQueue;
+	message->HEADER.SOURCE_QID = g_RequestQueue;
+	message->Tasks = taskList;
 	return message;
 }
 
@@ -182,7 +206,9 @@ static void _addTaskToSequentialList(SchedulerTaskPtr task, TaskList* list){
 	}
 }
 
-static void _addTaskToDeadlinePrioritizedList(SchedulerTaskPtr newTask, TaskList* list){
+static uint32_t _addTaskToDeadlinePrioritizedList(SchedulerTaskPtr newTask, TaskList* list){
+	uint32_t newTaskIndex = 0;
+
 	// Initialize a new list node
 	TaskListNodePtr node = _initializeTaskListNode();
 	node->task = newTask;
@@ -211,18 +237,144 @@ static void _addTaskToDeadlinePrioritizedList(SchedulerTaskPtr newTask, TaskList
 				node->prevNode = currentNode;
 				break;
 			}
+			newTaskIndex++;
 			currentNode = currentNode->nextNode;
 		}
 	}
+	return newTaskIndex;
 }
 
-static _task_id _createTask(uint32_t templateIndex, uint32_t deadline){
+static SchedulerTaskPtr _removeTaskWithIdFromTaskList(_task_id taskId, TaskList* list){
 
-	return 0;
+	// If the list is empty, return null
+	if(*list == NULL){
+		return NULL;
+	}
+
+	TaskListNodePtr currentNode = *list;
+	for(;;){
+		// If the current task has the matching Id, remove it from the list and return it
+		if (currentNode->task->TaskId == taskId){
+			if(currentNode->prevNode != NULL){
+				currentNode->prevNode->nextNode = currentNode->nextNode;
+			}
+			if(currentNode->nextNode != NULL){
+				currentNode->nextNode->prevNode = currentNode->prevNode;
+			}
+			SchedulerTaskPtr removedTask = currentNode->task;
+			free(currentNode);
+			return removedTask;
+		}
+
+		// Otherwise, return null if this is the end of the list
+		if(currentNode->nextNode == NULL){
+			return NULL;
+		}
+
+		// Otherwise, keep searching for the task
+		currentNode = currentNode->nextNode;
+	}
 }
 
-static bool _deleteTask(_task_id taskId){
-	return false;
+static void _setTaskAsReady(SchedulerTaskPtr task){
+	uint32_t oldPriority;
+	if(_task_set_priority(task->TaskId, DEFAULT_TASK_PRIORITY, &oldPriority) != MQX_OK){
+		printf("Could not change priority of task %u.\n", task->TaskId);
+		_task_block();
+	}
+}
+
+static void _setTaskAsRunning(SchedulerTaskPtr task){
+	// If the task is already running, do nothing
+	if(task->TaskId == g_CurrentTask->TaskId){
+		return;
+	}
+	uint32_t oldPriority;
+
+	// Set the currently running task's priority to the default priority
+	_setTaskAsReady(g_CurrentTask);
+
+	// Set this task's priority to the running priority
+	if(_task_set_priority(task->TaskId, RUNNING_TASK_PRIORITY, &oldPriority) != MQX_OK){
+		printf("Could not change priority of task %u.\n", task->TaskId);
+		_task_block();
+	}
+}
+
+static void _setTaskAsOverdue(SchedulerTaskPtr task){
+
+}
+
+static void _addTaskToScheduler(SchedulerTaskPtr task){
+	// Add the new task to the list of active tasks
+	uint32_t taskIndex = _addTaskToDeadlinePrioritizedList(task, &g_ActiveTasks);
+
+	if(taskIndex == 0){
+		_setTaskAsRunning(task);
+	}
+	else{
+		_setTaskAsReady(task);
+	}
+}
+
+static bool _removeTaskFromScheduler(_task_id taskId){
+
+	// Try to remove the task from the list of active tasks
+	SchedulerTaskPtr removedTask = _removeTaskWithIdFromTaskList(taskId, &g_ActiveTasks);
+
+	// If the task was not an active task, try deleting from the list of overdue tasks
+	if(removedTask == NULL){
+		removedTask = _removeTaskWithIdFromTaskList(taskId, &g_OverdueTasks);
+
+		// If the task is still not found, it does not exist in the scheduler
+		if (removedTask == NULL){
+			return false;
+		}
+	}
+
+	// If the deleted task is the currently running task...
+	if(g_CurrentTask->TaskId == taskId){
+		// If an ready task is available, set it as the currently running task
+		if(g_ActiveTasks != NULL){
+			_setTaskAsRunning(g_ActiveTasks->task);
+		}
+		// Otherwise, clear the currently running task
+		else{
+			g_CurrentTask = NULL;
+		}
+	}
+
+	// Destroy deleted task and free its memory
+	_task_destroy(taskId);
+	free(removedTask);
+
+	return true;
+}
+
+static _task_id _createTask(uint32_t templateIndex, uint32_t ticksTodeadline){
+	// Ensure template index is valid
+	if(templateIndex >= g_TaskTemplateCount){
+		return MQX_NULL_TASK_ID;
+	}
+
+	// Create a blocked task
+	_task_id newTaskId = _task_create_blocked(0, 0, (uint32_t) &g_TaskTemplates[templateIndex]);
+	if (newTaskId == MQX_NULL_TASK_ID){
+		printf("Unable to create task.\n");
+		_task_block();
+	}
+
+	// Initialize task struct
+	SchedulerTaskPtr newTask = _initializeSchedulerTask();
+	newTask->TaskId = newTaskId;
+
+	_addTaskToScheduler(newTask);
+
+	// Unblock task
+	TD_STRUCT_PTR taskDescriptor = _task_get_td(newTaskId);
+	_task_ready(taskDescriptor);
+
+	return newTaskId;
 }
 
 static TaskList _getCopyOfActiveTasks(){
@@ -239,28 +391,72 @@ static TaskList _getCopyOfOverdueTasks(){
 
 static void _handleCreateTaskMessage(TaskCreateMessagePtr message){
 
+	// Create a new task
+	_task_id newTaskId = _createTask(message->TemplateIndex, message->TicksToDeadline);
+
+	// Allocate response message
+	TaskCreateResponseMessagePtr response = _initializeTaskCreateResponseMessage(message->HEADER.SOURCE_QID, newTaskId);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send create task response.\n");
+		_task_block();
+	}
 }
 
 static void _handleDeleteTaskMessage(TaskDeleteMessagePtr message){
 
+	// Delete the task
+	bool result = _removeTaskFromScheduler(message->TaskId);
+
+	// Allocate response message
+	TaskDeleteResponseMessagePtr response = _initializeTaskDeleteResponseMessage(message->HEADER.SOURCE_QID, result);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send task delete response.\n");
+		_task_block();
+	}
 }
 
 static void _handleRequestActiveTasksMessage(SchedulerRequestMessagePtr message){
 
+	// Get active tasks
+	TaskList activeTasks = _getCopyOfActiveTasks();
+
+	// Allocate response message
+	TaskListResponseMessagePtr response = _initializeTaskListResponseMessage(message->HEADER.SOURCE_QID, activeTasks);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send active tasks response.\n");
+		_task_block();
+	}
 }
 
 static void _handleRequestOverdueTasksMessage(SchedulerRequestMessagePtr message){
 
+	// Get overdue tasks
+	TaskList overdueTasks = _getCopyOfOverdueTasks();
+
+	// Allocate response message
+	TaskListResponseMessagePtr response = _initializeTaskListResponseMessage(message->HEADER.SOURCE_QID, overdueTasks);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send active tasks response.\n");
+		_task_block();
+	}
 }
 
 /*=============================================================
                        INTERNAL INTERFACE
  ==============================================================*/
 
-void _initializeScheduler(_queue_id requestQueue, const TaskDefinition taskDefinitions[], uint32_t taskDefinitionCount){
+void _initializeScheduler(_queue_id requestQueue, const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount){
 	g_RequestQueue = requestQueue;
-	g_TaskDefinitions = taskDefinitions;
-	g_TaskDefinitionCount = taskDefinitionCount;
+	g_TaskTemplates = taskTemplates;
+	g_TaskTemplateCount = taskTemplateCount;
 
 	_initializeSchedulerMessagePool();
 	_initializeQueueNumMutex();

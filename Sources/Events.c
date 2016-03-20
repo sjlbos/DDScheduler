@@ -3,7 +3,7 @@
 #include "Events.h"
 #include "rtos_main_task.h"
 #include "os_tasks.h"
-#include "handler.h"
+#include "TerminalDriver/handler.h"
 
 #ifdef __cplusplus
 extern "C" {

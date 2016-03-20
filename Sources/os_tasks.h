@@ -3,6 +3,10 @@
 #define __os_tasks_H
 /* MODULE os_tasks */
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <mqx.h>
+
 #include "fsl_device_registers.h"
 #include "clockMan1.h"
 #include "pin_init.h"
@@ -12,12 +16,18 @@
 #include "fsl_mpu1.h"
 #include "fsl_hwtimer1.h"
 #include "MainTask.h"
+#include "rtos_main_task.h"
 #include "ddScheduler.h"
 #include "myUART.h"
+#include "Cpu.h"
+
+#include "Scheduler/scheduler.h"
+#include "TerminalDriver/handler.h"
 #include "monitor.h"
 #include "schedulerInterface.h"
 #include "serialHandler.h"
 #include "statusUpdate.h"
+#include "Events.h"
 
 #ifdef __cplusplus
 extern "C" {

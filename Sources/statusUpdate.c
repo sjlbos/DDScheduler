@@ -1,7 +1,7 @@
 #include "statusUpdate.h"
 #include "schedulerInterface.h"
-#include "scheduler.h"
-#include "handler.h"
+#include "Scheduler/scheduler.h"
+#include "TerminalDriver/handler.h"
 #include "monitor.h"
 
 //print out tasks in a nice format

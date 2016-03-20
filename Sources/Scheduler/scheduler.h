@@ -20,17 +20,12 @@
 #define MIN_RESPONSE_QUEUE_ID 20
 #define MAX_RESPONSE_QUEUE_ID 100
 
+#define DEFAULT_TASK_PRIORITY 99
+#define RUNNING_TASK_PRIORITY 3
+
 /*=============================================================
                       EXPORTED TYPES
  ==============================================================*/
-
-typedef void (*TaskEntryPoint)();
-
-typedef struct TaskDefinition{
-	char* Name;
-	TaskEntryPoint EntryPoint;
-	uint32_t Period;
-} TaskDefinition, * TaskDefinitionPtr;
 
 typedef struct SchedulerTask{
 	uint32_t TaskId;
@@ -63,7 +58,7 @@ typedef struct TaskCreateMessage{
 	MESSAGE_HEADER_STRUCT HEADER;
 	MessageType MessageType;
 	uint32_t TemplateIndex;
-	uint32_t Deadline;
+	uint32_t TicksToDeadline;
 } TaskCreateMessage, * TaskCreateMessagePtr;
 
 typedef struct TaskDeleteMessage{
@@ -109,7 +104,7 @@ bool dd_return_overdue_list(TaskList* taskList);
                       INTERNAL INTERFACE
  ==============================================================*/
 
-void _initializeScheduler(_queue_id requestQueue, const TaskDefinition taskDefinitions[], uint32_t taskDefinitionCount);
+void _initializeScheduler(_queue_id requestQueue, const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount);
 void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage);
 void _handleDeadlineReached();
 uint32_t _getNextDeadline();
