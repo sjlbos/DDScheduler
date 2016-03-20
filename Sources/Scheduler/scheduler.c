@@ -1,32 +1,36 @@
 #include "scheduler.h"
+#include "taskManagement.h"
 
 /*=============================================================
                       SCHEDULER VARIABLES
  ==============================================================*/
 
 static _queue_id g_RequestQueue;
-static _pool_id g_SchedulerRequestMessagePool;
-static _pool_id g_TaskCreateMessagePool;
-static _pool_id g_TaskDeleteMessagePool;
-static void* g_RequestSemaphore;
+static _pool_id g_SchedulerMessagePool;
+static MUTEX_STRUCT g_QueueNumMutex;
+
+static TASK_TEMPLATE_STRUCT* g_TaskTemplates;
+static uint32_t g_TaskTemplateCount;
+static SchedulerTaskPtr g_CurrentTask;
+static TaskList g_ActiveTasks;
+static TaskList g_OverdueTasks;
 
 /*=============================================================
                       INITIALIZATION
  ==============================================================*/
 
-static void _initializeSchedulerMessagePools(uint32_t initialSize, uint32_t growthRate, uint32_t maxSize){
+static void _initializeSchedulerMessagePool(){
 
 	// Initialize message pools
-	g_SchedulerRequestMessagePool = _msgpool_create(sizeof(SchedulerRequestMessage), initialSize, growthRate, maxSize);
-	g_TaskCreateMessagePool = _msgpool_create(sizeof(TaskCreateMessage), initialSize, growthRate, maxSize);
-	g_TaskDeleteMessagePool = _msgpool_create(sizeof(TaskDeleteMessage), initialSize, growthRate, maxSize);
-	//printf(MSGPOOL_MESSAGE_SIZE_TOO_SMALL, MQX_OUT_OF_MEMORY, MSGPOOL_OUT_OF_POOLS);
-	_mqx_uint error = _task_get_error();
+	g_SchedulerMessagePool = _msgpool_create(
+			sizeof(SchedulerMessage),
+			SCHEDULER_MESSAGE_POOL_INITIAL_SIZE,
+			SCHEDULER_MESSAGE_POOL_GROWTH_RATE,
+			SCHEDULER_MESSAGE_POOL_MAX_SIZE);
+
 	// Check that initialization succeeded
-	if(g_SchedulerRequestMessagePool == MSGPOOL_NULL_POOL_ID ||
-			g_TaskCreateMessagePool == MSGPOOL_NULL_POOL_ID ||
-			g_TaskDeleteMessagePool == MSGPOOL_NULL_POOL_ID){
-		printf("Failed to create a scheduler message pool.\n");
+	if(g_SchedulerMessagePool == MSGPOOL_NULL_POOL_ID){
+		printf("Failed to create the scheduler message pool.\n");
 		_task_block();
 	}
 }
@@ -40,15 +44,15 @@ static _queue_id _initializeQueue(int queueNum){
 	return queueId;
 }
 
-static void _initializeRequestSemaphore(){
-	char* requestSemaphoreName = "RequestSem";
-
-	if(_sem_create(requestSemaphoreName, MAX_CONCURRENT_REQUESTS, 0) != MQX_OK){
-		printf("Unable to create semaphore.\n");
+static void _initializeQueueNumMutex(){
+	MUTEX_ATTR_STRUCT mutexAttributes;
+	if(_mutatr_init(&mutexAttributes) != MQX_OK){
+		printf("Mutex attribute initialization failed.\n");
 		_task_block();
 	}
-	if(_sem_open(requestSemaphoreName, &g_RequestSemaphore) != MQX_OK){
-		printf("Unable to open semaphore \"%s\".", requestSemaphoreName);
+
+	if(_mutex_init(&g_QueueNumMutex, &mutexAttributes) != MQX_OK){
+		printf("QueueNumMutex initialization failed.\n");
 		_task_block();
 	}
 }
@@ -58,61 +62,64 @@ static void _initializeRequestSemaphore(){
  ==============================================================*/
 
 static uint32_t _getResponseQueueId(){
-	return MIN_RESPONSE_QUEUE_ID + _sem_get_value(g_RequestSemaphore);
+	static uint32_t currentQueueNum = MIN_RESPONSE_QUEUE_ID;
+
+	// Lock queue number mutex
+	if(_mutex_lock(&g_QueueNumMutex) != MQX_OK){
+		printf("Mutex lock failed.\n");
+		_task_block();
+	}
+
+	// Increment queue number
+	currentQueueNum = (currentQueueNum == MAX_RESPONSE_QUEUE_ID) ? MIN_RESPONSE_QUEUE_ID : currentQueueNum + 1;
+
+	// Release mutex
+	_mutex_unlock(&g_QueueNumMutex);
+
+	return currentQueueNum;
+}
+
+static SchedulerMessagePtr _initializeSchedulerMessage(){
+
+	SchedulerMessagePtr message = (SchedulerMessagePtr)_msg_alloc(g_SchedulerMessagePool);
+
+	if (message == NULL){
+		printf("Could not allocate a TaskCreateMessage.\n");
+		_task_block();
+	}
+
+	memset(message, 0, sizeof(SchedulerMessage));
+
+	return message;
 }
 
 static TaskCreateMessagePtr _initializeTaskCreateMessage(uint32_t templateIndex, uint32_t deadline, _queue_id responseQueue){
 	// Allocate message
-	TaskCreateMessagePtr message = (TaskCreateMessagePtr)_msg_alloc(g_TaskCreateMessagePool);
-
-	// Ensure allocation succeeded
-	if (message == NULL) {
-	 printf("Could not allocate a TaskCreateMessage.\n");
-	 _task_block();
-	}
+	TaskCreateMessagePtr message = (TaskCreateMessagePtr) _initializeSchedulerMessage();
 
 	// Set message fields
 	message->HEADER.TARGET_QID = g_RequestQueue;
 	message->HEADER.SOURCE_QID = responseQueue;
 	message->MessageType = CREATE;
 	message->TemplateIndex = templateIndex;
-	message->Deadline = deadline;
+	message->TicksToDeadline = deadline;
 
 	return message;
 }
 
 static TaskDeleteMessagePtr _initializeTaskDeleteMessage(_task_id taskId, _queue_id responseQueue){
-	// Allocate message
-	TaskDeleteMessagePtr message = (TaskDeleteMessagePtr)_msg_alloc(g_TaskDeleteMessagePool);
-
-	// Ensure allocation succeeded
-	if (message == NULL) {
-	 printf("Could not allocate a TaskDeleteMessage.\n");
-	 _task_block();
-	}
-
-	// Set message fields
+	TaskDeleteMessagePtr message = (TaskDeleteMessagePtr) _initializeSchedulerMessage();
 	message->HEADER.TARGET_QID = g_RequestQueue;
 	message->HEADER.SOURCE_QID = responseQueue;
 	message->MessageType = DELETE;
 	message->TaskId = taskId;
-
 	return message;
 }
 
 static SchedulerRequestMessagePtr _initializeSchedulerRequestMessage(_queue_id responseQueue){
-	// Allocate message
-	SchedulerRequestMessagePtr message = (SchedulerRequestMessagePtr)_msg_alloc(g_SchedulerRequestMessagePool);
-
-	// Ensure allocation succeeded
-	if (message == NULL) {
-	 printf("Could not allocate a SchedulerRequestMessage.\n");
-	 _task_block();
-	}
-
+	SchedulerRequestMessagePtr message = (SchedulerRequestMessagePtr) _initializeSchedulerMessage();
 	message->HEADER.TARGET_QID = g_RequestQueue;
 	message->HEADER.SOURCE_QID = responseQueue;
-
 	return message;
 }
 
@@ -128,24 +135,28 @@ static SchedulerRequestMessagePtr _initializeRequestOverdueMessage(_queue_id res
 	return message;
 }
 
-/*=============================================================
-                      TASK MANAGEMENT
- ==============================================================*/
-
-static _task_id _createTask(uint32_t templateIndex, uint32_t deadline){
-	return 0;
+static TaskCreateResponseMessagePtr _initializeTaskCreateResponseMessage(_queue_id responseQueue, _task_id taskId){
+	TaskCreateResponseMessagePtr message = (TaskCreateResponseMessagePtr) _initializeSchedulerMessage();
+	message->HEADER.TARGET_QID = responseQueue;
+	message->HEADER.SOURCE_QID = g_RequestQueue;
+	message->TaskId = taskId;
+	return message;
 }
 
-static bool _deleteTask(_task_id taskId){
-	return false;
+static TaskDeleteResponseMessagePtr _initializeTaskDeleteResponseMessage(_queue_id responseQueue, bool result){
+	TaskDeleteResponseMessagePtr message = (TaskDeleteResponseMessagePtr) _initializeSchedulerMessage();
+	message->HEADER.TARGET_QID = responseQueue;
+	message->HEADER.SOURCE_QID = g_RequestQueue;
+	message->Result = result;
+	return message;
 }
 
-static TaskList _getCopyOfActiveTasks(){
-	return NULL;
-}
-
-static TaskList _getCopyOfOverdueTasks(){
-	return NULL;
+static TaskListResponseMessagePtr _initializeTaskListResponseMessage(_queue_id responseQueue, TaskList taskList){
+	TaskListResponseMessagePtr message = (TaskListResponseMessagePtr) _initializeSchedulerMessage();
+	message->HEADER.TARGET_QID = responseQueue;
+	message->HEADER.SOURCE_QID = g_RequestQueue;
+	message->Tasks = taskList;
+	return message;
 }
 
 /*=============================================================
@@ -154,28 +165,74 @@ static TaskList _getCopyOfOverdueTasks(){
 
 static void _handleCreateTaskMessage(TaskCreateMessagePtr message){
 
+	// Create a new task
+	_task_id newTaskId = createTask(message->TemplateIndex, message->TicksToDeadline);
+
+	// Allocate response message
+	TaskCreateResponseMessagePtr response = _initializeTaskCreateResponseMessage(message->HEADER.SOURCE_QID, newTaskId);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send create task response.\n");
+		_task_block();
+	}
 }
 
 static void _handleDeleteTaskMessage(TaskDeleteMessagePtr message){
 
+	// Delete the task
+	bool result = deleteTask(message->TaskId);
+
+	// Allocate response message
+	TaskDeleteResponseMessagePtr response = _initializeTaskDeleteResponseMessage(message->HEADER.SOURCE_QID, result);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send task delete response.\n");
+		_task_block();
+	}
 }
 
 static void _handleRequestActiveTasksMessage(SchedulerRequestMessagePtr message){
 
+	// Get active tasks
+	TaskList activeTasks = getCopyOfActiveTasks();
+
+	// Allocate response message
+	TaskListResponseMessagePtr response = _initializeTaskListResponseMessage(message->HEADER.SOURCE_QID, activeTasks);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send active tasks response.\n");
+		_task_block();
+	}
 }
 
 static void _handleRequestOverdueTasksMessage(SchedulerRequestMessagePtr message){
 
+	// Get overdue tasks
+	TaskList overdueTasks = getCopyOfOverdueTasks();
+
+	// Allocate response message
+	TaskListResponseMessagePtr response = _initializeTaskListResponseMessage(message->HEADER.SOURCE_QID, overdueTasks);
+
+	// Send response
+	if(_msgq_send(response) != TRUE){
+		printf("Unable to send active tasks response.\n");
+		_task_block();
+	}
 }
 
 /*=============================================================
-                       INTERNAL INTERFACE
+                    SCHEDULER TASK INTERFACE
  ==============================================================*/
 
-void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize){
+void _initializeScheduler(_queue_id requestQueue, const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount){
 	g_RequestQueue = requestQueue;
-	_initializeSchedulerMessagePools(initialPoolSize, poolGrowthRate, maxPoolSize);
-	_initializeRequestSemaphore();
+
+	initializeTaskManager(taskTemplates, taskTemplateCount);
+	_initializeSchedulerMessagePool();
+	_initializeQueueNumMutex();
 }
 
 void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage){
@@ -211,11 +268,6 @@ uint32_t _getNextDeadline(){
  ==============================================================*/
 
 _task_id dd_tcreate(uint32_t templateIndex, uint32_t deadline){
-	// Wait on the request semaphore
-	if(_sem_wait(g_RequestSemaphore, 0) != MQX_OK){
-		printf("Encountered an error trying to wait on semaphore.\n");
-		_task_block();
-	}
 
 	// Initialize response queue and create message
 	_queue_id responseQueue = _initializeQueue(_getResponseQueueId());
@@ -244,21 +296,10 @@ _task_id dd_tcreate(uint32_t templateIndex, uint32_t deadline){
 		_task_block();
 	}
 
-	// Release the request semaphore
-	if(_sem_post(g_RequestSemaphore) != MQX_OK){
-		printf("Encountered an error trying to release semaphore.\n");
-		_task_block();
-	}
-
 	return newTaskId;
 }
 
 bool dd_delete(_task_id task){
-	// Wait on the request semaphore
-	if(_sem_wait(g_RequestSemaphore, 0) != MQX_OK){
-		printf("Encountered an error trying to wait on semaphore.\n");
-		_task_block();
-	}
 
 	// Initialize response queue and delete message
 	_queue_id responseQueue = _initializeQueue(_getResponseQueueId());
@@ -287,21 +328,10 @@ bool dd_delete(_task_id task){
 		_task_block();
 	}
 
-	// Release the request semaphore
-	if(_sem_post(g_RequestSemaphore) != MQX_OK){
-		printf("Encountered an error trying to release semaphore.\n");
-		_task_block();
-	}
-
 	return result;
 }
 
 bool dd_return_active_list(TaskList* taskList){
-	// Wait on the request semaphore
-	if(_sem_wait(g_RequestSemaphore, 0) != MQX_OK){
-		printf("Encountered an error trying to wait on semaphore.\n");
-		_task_block();
-	}
 
 	// Initialize response queue and request message
 	_queue_id responseQueue = _initializeQueue(_getResponseQueueId());
@@ -314,7 +344,7 @@ bool dd_return_active_list(TaskList* taskList){
 	}
 
 	// Wait for response from scheduler
-	TaskListMessagePtr response = (TaskListMessagePtr) _msgq_receive(responseQueue, 0);
+	TaskListResponseMessagePtr response = (TaskListResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
 		printf("Failed to receive a task list response from the scheduler.\n");
 		_task_block();
@@ -330,21 +360,10 @@ bool dd_return_active_list(TaskList* taskList){
 		_task_block();
 	}
 
-	// Release the request semaphore
-	if(_sem_post(g_RequestSemaphore) != MQX_OK){
-		printf("Encountered an error trying to release semaphore.\n");
-		_task_block();
-	}
-
 	return true;
 }
 
 bool dd_return_overdue_list(TaskList* taskList){
-	// Wait on the request semaphore
-	if(_sem_wait(g_RequestSemaphore, 0) != MQX_OK){
-		printf("Encountered an error trying to wait on semaphore.\n");
-		_task_block();
-	}
 
 	// Initialize response queue and request message
 	_queue_id responseQueue = _initializeQueue(_getResponseQueueId());
@@ -357,7 +376,7 @@ bool dd_return_overdue_list(TaskList* taskList){
 	}
 
 	// Wait for response from scheduler
-	TaskListMessagePtr response = (TaskListMessagePtr) _msgq_receive(responseQueue, 0);
+	TaskListResponseMessagePtr response = (TaskListResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
 		printf("Failed to receive a task list response from the scheduler.\n");
 		_task_block();
@@ -370,12 +389,6 @@ bool dd_return_overdue_list(TaskList* taskList){
 	_msg_free(response);
 	if(_msgq_close(responseQueue) != TRUE){
 		printf("Unable to close response queue.\n");
-		_task_block();
-	}
-
-	// Release the request semaphore
-	if(_sem_post(g_RequestSemaphore) != MQX_OK){
-		printf("Encountered an error trying to release semaphore.\n");
 		_task_block();
 	}
 

@@ -1,6 +1,7 @@
 #include "schedulerInterface.h"
-#include "scheduler.h"
-#include "handler.h"
+#include "Scheduler/scheduler.h"
+#include "TerminalDriver/handler.h"
+#include "monitor.h"
 
 const char token[2] = " ";
 
@@ -25,39 +26,6 @@ bool _handleDelete(char* outputString){
 	return dd_delete(taskId);
 }
 
-//provides feedback on active tasks
-void _handleActive(){
-	TaskList taskList;
-	dd_return_active_list(&taskList);
-	if(taskList == NULL) return;
-	printf("Active Tasks:\n");
-	prettyPrintTaskList(taskList);
-	free(taskList);
-	return;
-}
-
-//provides feedback on overdue tasks
-void _handleOverdue(){
-	TaskList taskList;
-	dd_return_overdue_list(&taskList);
-	if(taskList == NULL) return;
-	printf("OverDue Tasks:\n");
-	prettyPrintTaskList(taskList);
-	free(taskList);
-	return;
-}
-
-//print out tasks in a nice format
-void prettyPrintTaskList(TaskList taskList){
-	do{
-			printf("Task ID:      %u\n", taskList->task->taskId);
-			printf("Task Deadline:%u\n", taskList->task->deadline);
-			printf("Task Type:    %u\n", taskList->task->taskType);
-			printf("Task Created: %u\n\n", taskList->task->createdAt);
-			taskList = taskList->nextNode;
-	}while(taskList!=NULL);
-	return;
-}
 
 //handles the different commands that the user can input
 bool HandleCommand(char* outputString){

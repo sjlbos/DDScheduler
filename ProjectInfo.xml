@@ -114,6 +114,7 @@
     <GeneratedCs>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\Cpu.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\MainTask.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\SchedulerInterface.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\clockMan1.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\ddScheduler.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\fsl_hwtimer1.c</PathName>
@@ -256,9 +257,12 @@
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Events.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\handler.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\main.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\monitor.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\os_tasks.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\rtos_main_task.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\scheduler.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\schedulerInterface.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\statusUpdate.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Static_Code\System\PE_low_level_init.c</PathName>
     </GeneratedCs>
     <GeneratedHs>
@@ -268,6 +272,7 @@
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\SDK\platform\devices\MK64F12\startup\system_MK64F12.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\SDK\rtos\mqx\config\board\user_config.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\SDK\rtos\mqx\config\mcu\mqx_sdk_config.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\SchedulerInterface.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\board.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\clockMan1.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Generated_Code\ddScheduler.h</PathName>
@@ -407,9 +412,12 @@
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\scan_prv.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Events.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\handler.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\monitor.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\os_tasks.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\rtos_main_task.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\scheduler.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\schedulerInterface.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\statusUpdate.h</PathName>
     </GeneratedHs>
     <GeneratedASMs>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\SDK\platform\devices\MK64F12\startup\gcc\startup_MK64F12.S</PathName>

@@ -1,9 +1,8 @@
-#include <ctype.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <mqx.h>
+#include <mutex.h>
 #include <message.h>
-#include <sem.h>
 
 #ifndef SOURCES_SCHEDULER_H_
 #define SOURCES_SCHEDULER_H_
@@ -12,19 +11,26 @@
                       	  CONSTANTS
  ==============================================================*/
 
+#define SCHEDULER_MESSAGE_POOL_INITIAL_SIZE 8
+#define SCHEDULER_MESSAGE_POOL_GROWTH_RATE 2
+#define SCHEDULER_MESSAGE_POOL_MAX_SIZE 32
+
 #define NO_DEADLINE 0
-#define MAX_CONCURRENT_REQUESTS 100
 #define MIN_RESPONSE_QUEUE_ID 20
+#define MAX_RESPONSE_QUEUE_ID 100
+
+#define DEFAULT_TASK_PRIORITY 99
+#define RUNNING_TASK_PRIORITY 3
 
 /*=============================================================
                       EXPORTED TYPES
  ==============================================================*/
 
 typedef struct SchedulerTask{
-	uint32_t taskId;
-	uint32_t deadline;
-	uint32_t taskType;
-	uint32_t createdAt;
+	uint32_t TaskId;
+	uint32_t Deadline;
+	uint32_t TaskType;
+	uint32_t CreatedAt;
 } SchedulerTask, *SchedulerTaskPtr;
 
 typedef struct TaskListNode{
@@ -51,7 +57,7 @@ typedef struct TaskCreateMessage{
 	MESSAGE_HEADER_STRUCT HEADER;
 	MessageType MessageType;
 	uint32_t TemplateIndex;
-	uint32_t Deadline;
+	uint32_t TicksToDeadline;
 } TaskCreateMessage, * TaskCreateMessagePtr;
 
 typedef struct TaskDeleteMessage{
@@ -70,10 +76,19 @@ typedef struct TaskDeleteResponseMessage{
 	bool Result;
 } TaskDeleteResponseMessage, * TaskDeleteResponseMessagePtr;
 
-typedef struct TaskListMessage{
+typedef struct TaskListResponseMessage{
 	MESSAGE_HEADER_STRUCT HEADER;
 	TaskList Tasks;
-} TaskListMessage, * TaskListMessagePtr;
+} TaskListResponseMessage, * TaskListResponseMessagePtr;
+
+typedef union SchedulerMessage{
+	SchedulerRequestMessage RequestMessage;
+	TaskCreateMessage CreateMessage;
+	TaskDeleteMessage DeleteMessage;
+	TaskCreateResponseMessage CreateResponse;
+	TaskDeleteResponseMessage DeleteResponse;
+	TaskListResponseMessage TaskListResponse;
+} SchedulerMessage, *SchedulerMessagePtr;
 
 /*=============================================================
                       USER TASK INTERFACE
@@ -88,7 +103,7 @@ bool dd_return_overdue_list(TaskList* taskList);
                       INTERNAL INTERFACE
  ==============================================================*/
 
-void _initializeScheduler(_queue_id requestQueue, uint32_t initialPoolSize, uint32_t poolGrowthRate, uint32_t maxPoolSize);
+void _initializeScheduler(_queue_id requestQueue, const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount);
 void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage);
 void _handleDeadlineReached();
 uint32_t _getNextDeadline();

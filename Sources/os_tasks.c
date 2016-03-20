@@ -1,14 +1,5 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <mqx.h>
-
-#include "Cpu.h"
-#include "Events.h"
-#include "rtos_main_task.h"
 #include "os_tasks.h"
-#include "handler.h"
-#include "scheduler.h"
-#include "schedulerInterface.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +13,18 @@ _pool_id g_InterruptMessagePool;	// A message pool for messages sent between fro
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
 MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's internal state
+
+/*=============================================================
+                     USER TASK DEFINITIONS
+ ==============================================================*/
+
+#define USER_TASK_STACK_SIZE 700
+
+const uint32_t USER_TASK_COUNT = 2;
+const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
+		{ 0, runPeriodicTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 0, 0},
+		{ 0, runOnceTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 0, 0}
+};
 
 /*=============================================================
                        HELPER FUNCTIONS
@@ -45,10 +48,7 @@ void runScheduler(os_task_param_t task_init_data)
 	printf("\r\nScheduler task started.\r\n");
 
 	_queue_id requestQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
-	_initializeScheduler(requestQueue,
-			SCHEDULER_MESSAGE_POOL_INITIAL_SIZE,
-			SCHEDULER_MESSAGE_POOL_GROWTH_RATE,
-			SCHEDULER_MESSAGE_POOL_MAX_SIZE);
+	_initializeScheduler(requestQueue, USER_TASKS, USER_TASK_COUNT);
 
 #ifdef PEX_USE_RTOS
   while (1) {
@@ -202,8 +202,53 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 	Close();
 }
 
-/* END os_tasks */
+/*=============================================================
+                          USER TASKS
+ ==============================================================*/
+
+void runPeriodicTask(){
+
+}
+
+void runOnceTask(){
+
+}
+
+/*=============================================================
+                    MONITOR TASK
+ ==============================================================*/
+
+void runMonitor(os_task_param_t task_init_data)
+{
+	g_ticks = 0;
+	g_milliseconds = 0;
+	uint32_t ticksPerMillisecond = _time_get_ticks_per_sec()*1000;
+
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+	  	 while(g_ticks < ticksPerMillisecond){
+	  		 g_ticks ++;
+	  	 }
+	  	 g_milliseconds ++;
+	  	 g_ticks = 0;
+
+#ifdef PEX_USE_RTOS   
+  }
+#endif    
+}
+
+/*=============================================================
+                    STATUS UPDATE TASK
+ ==============================================================*/
+
+void runStatusUpdate(os_task_param_t task_init_data)
+{
+	uint32_t period = 10000;//period of status updates in ms
+	//uint32_t period = task_init_data[2];//to get from init data
+	StatusUpdate(period);
+}
 
 #ifdef __cplusplus
-}  /* extern "C" */
+}
 #endif 

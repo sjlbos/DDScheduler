@@ -123,7 +123,7 @@
  * MGCT: <option type="number"/>
  */
 #ifndef BSP_DEFAULT_MAX_MSGPOOLS
-    #define BSP_DEFAULT_MAX_MSGPOOLS                            (2L)
+    #define BSP_DEFAULT_MAX_MSGPOOLS                            (10L)
 #endif
 
 /*

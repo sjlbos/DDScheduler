@@ -5,13 +5,15 @@
 #include <mutex.h>
 #include <ctype.h>
 #include <string.h>
+
+uint32_t g_ticks;
+uint32_t g_milliseconds;
 /*=============================================================
                       INTERNAL INTERFACE
  ==============================================================*/
-_task_id _handleCreate(char* outputString);
-bool _handleDelete(char* outputString);
 
 /*=============================================================
-                      SCHEDULER INTERFACE
+                      MONITOR INTERFACE
  ==============================================================*/
-bool HandleCommand(char* outputString);
+uint32_t IdleTime();
+
