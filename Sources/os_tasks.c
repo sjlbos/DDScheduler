@@ -22,8 +22,8 @@ MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's i
 
 const uint32_t USER_TASK_COUNT = 2;
 const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
-		{ 0, runPeriodicTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 0, 0},
-		{ 0, runOnceTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 0, 0}
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 5000, 0, 0},
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 10000, 0, 0}
 };
 
 /*=============================================================
@@ -217,12 +217,23 @@ void runSchedulerInterface(os_task_param_t task_init_data)
                           USER TASKS
  ==============================================================*/
 
-void runPeriodicTask(){
+void doBusyWorkForTicks(uint32_t numTicks){
+	MQX_TICK_STRUCT startTime;
+	 _time_get_ticks(&startTime);
 
+	 uint32_t tickDeadline = startTime.TICKS[0] + numTicks;
+
+	MQX_TICK_STRUCT currentTime;
+
+	do{
+		_time_get_ticks(&currentTime);
+	}
+	while(currentTime.TICKS[0] <= tickDeadline);
 }
 
-void runOnceTask(){
-
+void runUserTask(uint32_t numTicks){
+	printf("User task started - doing busy work for %u ticks.\n", numTicks);
+	doBusyWorkForTicks(numTicks);
 }
 
 /*=============================================================
