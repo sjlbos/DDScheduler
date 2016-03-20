@@ -105,6 +105,8 @@
       <Path>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\</Path>
       <Path>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\strings\</Path>
       <Path>C:\Users\sjlbos\Repos\DDScheduler\Sources\</Path>
+      <Path>C:\Users\sjlbos\Repos\DDScheduler\Sources\Scheduler\</Path>
+      <Path>C:\Users\sjlbos\Repos\DDScheduler\Sources\TerminalDriver\</Path>
       <Path>C:\Users\sjlbos\Repos\DDScheduler\Static_Code\System\</Path>
       <Path>C:\Users\sjlbos\Repos\DDScheduler\SDK\platform\devices\MK64F12\startup\gcc\</Path>
       <Path>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\</Path>
@@ -255,12 +257,13 @@
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\stdio.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\strings\strings.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Events.c</PathName>
-      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\handler.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Scheduler\scheduler.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Scheduler\taskManagement.c</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\TerminalDriver\handler.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\main.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\monitor.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\os_tasks.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\rtos_main_task.c</PathName>
-      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\scheduler.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\schedulerInterface.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\statusUpdate.c</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Static_Code\System\PE_low_level_init.c</PathName>
@@ -411,11 +414,12 @@
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\print_prv.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\scan_prv.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Events.h</PathName>
-      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\handler.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Scheduler\scheduler.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\Scheduler\taskManagement.h</PathName>
+      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\TerminalDriver\handler.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\monitor.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\os_tasks.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\rtos_main_task.h</PathName>
-      <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\scheduler.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\schedulerInterface.h</PathName>
       <PathName>C:\Users\sjlbos\Repos\DDScheduler\Sources\statusUpdate.h</PathName>
     </GeneratedHs>

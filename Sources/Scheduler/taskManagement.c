@@ -41,6 +41,7 @@ void initializeTaskManager(const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t 
 	g_TaskTemplateCount = taskTemplateCount;
 	g_ActiveTasks = NULL;
 	g_OverdueTasks = NULL;
+	g_CurrentTask = NULL;
 }
 
 _task_id createTask(uint32_t templateIndex, uint32_t msToDeadline){
@@ -172,11 +173,13 @@ static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline){
  ==============================================================*/
 
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task){
-	if(task->TaskId == g_CurrentTask->TaskId){
-		return;
+	if (g_CurrentTask != NULL){
+		if(task->TaskId == g_CurrentTask->TaskId){
+			return;
+		}
+		_setTaskPriorityTo(DEFAULT_TASK_PRIORITY, g_CurrentTask->TaskId);
 	}
 
-	_setTaskPriorityTo(DEFAULT_TASK_PRIORITY, g_CurrentTask->TaskId);
 	g_CurrentTask = task;
 	if(g_CurrentTask != NULL){
 		_setTaskPriorityTo(RUNNING_TASK_PRIORITY, g_CurrentTask->TaskId);

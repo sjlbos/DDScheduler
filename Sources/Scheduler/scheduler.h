@@ -18,8 +18,8 @@
 #define MIN_RESPONSE_QUEUE_ID 20
 #define MAX_RESPONSE_QUEUE_ID 100
 
-#define OVERDUE_TASK_PRIORITY 99
-#define DEFAULT_TASK_PRIORITY 99
+#define OVERDUE_TASK_PRIORITY 20
+#define DEFAULT_TASK_PRIORITY 20
 #define RUNNING_TASK_PRIORITY 3
 
 /*=============================================================
