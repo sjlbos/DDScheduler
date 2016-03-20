@@ -256,11 +256,11 @@ void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage){
 }
 
 void _handleDeadlineReached(){
-
+	setCurrentTaskAsOverdue();
 }
 
-uint32_t _getNextDeadline(){
-	return NO_DEADLINE;
+bool _getNextDeadline(MQX_TICK_STRUCT_PTR deadline){
+	return getNextTaskDeadline(deadline);
 }
 
 /*=============================================================

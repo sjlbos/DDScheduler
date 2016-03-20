@@ -4,7 +4,7 @@
                      LOCAL GLOBAL VARIABLES
  ==============================================================*/
 
-static TASK_TEMPLATE_STRUCT* g_TaskTemplates;
+static const TASK_TEMPLATE_STRUCT* g_TaskTemplates;
 static uint32_t g_TaskTemplateCount;
 static SchedulerTaskPtr g_CurrentTask;
 static TaskList g_ActiveTasks;
@@ -17,12 +17,11 @@ static TaskList g_OverdueTasks;
 // Task Creation
 static SchedulerTaskPtr _initializeSchedulerTask();
 static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original);
-static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline);
+static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline);
 
 // Task Priority
-static void _setTaskAsReady(SchedulerTaskPtr task);
-static void _setTaskAsRunning(SchedulerTaskPtr task);
-static void _setTaskAsOverdue(SchedulerTaskPtr task);
+static void _setCurrentlyRunningTask(SchedulerTaskPtr task);
+static void _setTaskPriorityTo(uint32_t priority, _task_id taskId);
 
 // Task List Management
 static TaskListNodePtr _initializeTaskListNode();
@@ -36,13 +35,14 @@ static SchedulerTaskPtr _removeTaskWithIdFromTaskList(_task_id taskId, TaskList*
  ==============================================================*/
 
 void initializeTaskManager(const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount){
+	_time_set_ticks_per_sec(1000); // Set tick interval to 1 millisecond
 	g_TaskTemplates = taskTemplates;
 	g_TaskTemplateCount = taskTemplateCount;
 	g_ActiveTasks = NULL;
 	g_OverdueTasks = NULL;
 }
 
-_task_id createTask(uint32_t templateIndex, uint32_t ticksToDeadline){
+_task_id createTask(uint32_t templateIndex, uint32_t msToDeadline){
 	// Ensure template index is valid
 	if(templateIndex >= g_TaskTemplateCount){
 		return MQX_NULL_TASK_ID;
@@ -55,13 +55,26 @@ _task_id createTask(uint32_t templateIndex, uint32_t ticksToDeadline){
 		_task_block();
 	}
 
-	_scheduleNewTask(newTaskId, ticksToDeadline);
+	_scheduleNewTask(newTaskId, msToDeadline);
 
 	// Unblock task
 	TD_STRUCT_PTR taskDescriptor = _task_get_td(newTaskId);
 	_task_ready(taskDescriptor);
 
 	return newTaskId;
+}
+
+_task_id setCurrentTaskAsOverdue(){
+	if(g_CurrentTask == NULL){
+		return MQX_NULL_TASK_ID;
+	}
+
+	SchedulerTaskPtr overdueTask = g_CurrentTask;
+	_setTaskPriorityTo(OVERDUE_TASK_PRIORITY, overdueTask->TaskId);
+	_removeTaskWithIdFromTaskList(overdueTask->TaskId, &g_ActiveTasks);
+	_addTaskToSequentialList(overdueTask, &g_OverdueTasks);
+
+	return overdueTask->TaskId;
 }
 
 bool deleteTask(_task_id taskId){
@@ -81,14 +94,8 @@ bool deleteTask(_task_id taskId){
 
 	// If the deleted task is the currently running task...
 	if(g_CurrentTask->TaskId == taskId){
-		// If an ready task is available, set it as the currently running task
-		if(g_ActiveTasks != NULL){
-			_setTaskAsRunning(g_ActiveTasks->task);
-		}
-		// Otherwise, clear the currently running task
-		else{
-			g_CurrentTask = NULL;
-		}
+		// Set the currently running task to the next task in the active queue or NULL if there are no active tasks
+		_setCurrentlyRunningTask((g_ActiveTasks == NULL) ? NULL : g_ActiveTasks->task);
 	}
 
 	// Destroy deleted task and free its memory
@@ -104,6 +111,18 @@ TaskList getCopyOfActiveTasks(){
 
 TaskList getCopyOfOverdueTasks(){
 	return _copyTaskList(g_OverdueTasks);
+}
+
+bool getNextTaskDeadline(MQX_TICK_STRUCT_PTR deadline){
+	if (g_CurrentTask == NULL){
+		return false;
+	}
+
+	deadline->HW_TICKS = g_CurrentTask->Deadline.HW_TICKS;
+	deadline->TICKS[0] = g_CurrentTask->Deadline.TICKS[0];
+	deadline->TICKS[1] = g_CurrentTask->Deadline.TICKS[1];
+
+	return true;
 }
 
 /*=============================================================
@@ -126,24 +145,28 @@ static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original){
 	copy->Deadline = original->Deadline;
 	copy->TaskId = original->TaskId;
 	copy->TaskType = original->TaskType;
+	return copy;
 }
 
-static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline){
+static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline){
 
 	// Initialize task struct
 	SchedulerTaskPtr newTask = _initializeSchedulerTask();
 	newTask->TaskId = taskId;
+	_time_get_ticks(&newTask->CreatedAt);
+	newTask->Deadline = newTask->CreatedAt;
+	_time_add_msec_to_ticks(&newTask->Deadline, msToDeadline);
 
 	// Add the new task to the list of active tasks
 	uint32_t taskIndex = _addTaskToDeadlinePrioritizedList(newTask, &g_ActiveTasks);
 
 	// If the new task has the highest priority, set it to running
 	if(taskIndex == 0){
-		_setTaskAsRunning(newTask);
+		_setCurrentlyRunningTask(newTask);
 	}
 	// Otherwise, set it to the default ready priority
 	else{
-		_setTaskAsReady(newTask);
+		_setTaskPriorityTo(DEFAULT_TASK_PRIORITY, taskId);
 	}
 }
 
@@ -151,33 +174,24 @@ static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline){
                     TASK PRIORITY MANAGEMENT
  ==============================================================*/
 
-static void _setTaskAsReady(SchedulerTaskPtr task){
-	uint32_t oldPriority;
-	if(_task_set_priority(task->TaskId, DEFAULT_TASK_PRIORITY, &oldPriority) != MQX_OK){
-		printf("Could not change priority of task %u.\n", task->TaskId);
-		_task_block();
-	}
-}
-
-static void _setTaskAsRunning(SchedulerTaskPtr task){
-	// If the task is already running, do nothing
+static void _setCurrentlyRunningTask(SchedulerTaskPtr task){
 	if(task->TaskId == g_CurrentTask->TaskId){
 		return;
 	}
-	uint32_t oldPriority;
 
-	// Set the currently running task's priority to the default priority
-	_setTaskAsReady(g_CurrentTask);
-
-	// Set this task's priority to the running priority
-	if(_task_set_priority(task->TaskId, RUNNING_TASK_PRIORITY, &oldPriority) != MQX_OK){
-		printf("Could not change priority of task %u.\n", task->TaskId);
-		_task_block();
+	_setTaskPriorityTo(DEFAULT_TASK_PRIORITY, g_CurrentTask->TaskId);
+	g_CurrentTask = task;
+	if(g_CurrentTask != NULL){
+		_setTaskPriorityTo(RUNNING_TASK_PRIORITY, g_CurrentTask->TaskId);
 	}
 }
 
-static void _setTaskAsOverdue(SchedulerTaskPtr task){
-
+static void _setTaskPriorityTo(uint32_t priority, _task_id taskId){
+	uint32_t oldPriority;
+	if(_task_set_priority(taskId, priority, &oldPriority) != MQX_OK){
+		printf("Could not change priority of task %u.\n", taskId);
+		_task_block();
+	}
 }
 
 /*=============================================================
@@ -254,7 +268,7 @@ static uint32_t _addTaskToDeadlinePrioritizedList(SchedulerTaskPtr newTask, Task
 		TaskListNodePtr currentNode = *list;
 		for(;;){
 			// If the new task preempts the current task, place the new task before the current task in the list
-			if(newTask->Deadline < currentNode->task->Deadline){
+			if(newTask->Deadline.TICKS[0] < currentNode->task->Deadline.TICKS[0]){
 				node->nextNode = currentNode;
 				node->prevNode = currentNode->prevNode;
 				if(currentNode->prevNode != NULL){

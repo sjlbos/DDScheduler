@@ -15,10 +15,10 @@
 #define SCHEDULER_MESSAGE_POOL_GROWTH_RATE 2
 #define SCHEDULER_MESSAGE_POOL_MAX_SIZE 32
 
-#define NO_DEADLINE 0
 #define MIN_RESPONSE_QUEUE_ID 20
 #define MAX_RESPONSE_QUEUE_ID 100
 
+#define OVERDUE_TASK_PRIORITY 99
 #define DEFAULT_TASK_PRIORITY 99
 #define RUNNING_TASK_PRIORITY 3
 
@@ -28,9 +28,9 @@
 
 typedef struct SchedulerTask{
 	uint32_t TaskId;
-	uint32_t Deadline;
+	MQX_TICK_STRUCT Deadline;
 	uint32_t TaskType;
-	uint32_t CreatedAt;
+	MQX_TICK_STRUCT CreatedAt;
 } SchedulerTask, *SchedulerTaskPtr;
 
 typedef struct TaskListNode{
@@ -106,6 +106,6 @@ bool dd_return_overdue_list(TaskList* taskList);
 void _initializeScheduler(_queue_id requestQueue, const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount);
 void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage);
 void _handleDeadlineReached();
-uint32_t _getNextDeadline();
+bool _getNextDeadline(MQX_TICK_STRUCT_PTR deadline);
 
 #endif /* SOURCES_SCHEDULER_H_ */
