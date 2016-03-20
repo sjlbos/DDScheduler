@@ -306,9 +306,13 @@ static SchedulerTaskPtr _removeTaskWithIdFromTaskList(_task_id taskId, TaskList*
 	for(;;){
 		// If the current task has the matching Id, remove it from the list and return it
 		if (currentNode->task->TaskId == taskId){
-			if(currentNode->prevNode != NULL){
+			if (currentNode == *list){
+				*list = currentNode->nextNode;
+			}
+			else{
 				currentNode->prevNode->nextNode = currentNode->nextNode;
 			}
+
 			if(currentNode->nextNode != NULL){
 				currentNode->nextNode->prevNode = currentNode->prevNode;
 			}

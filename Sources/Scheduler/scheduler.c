@@ -248,6 +248,11 @@ static void _handleDeleteTaskMessage(TaskDeleteMessagePtr message){
 	// Delete the task
 	bool result = deleteTask(message->TaskId);
 
+	// If a task is deleting itself, its response queue will be NULL
+	if(message->HEADER.SOURCE_QID == MSGQ_NULL_QUEUE_ID){
+		return;
+	}
+
 	// Allocate response message
 	TaskDeleteResponseMessagePtr response = _initializeTaskDeleteResponseMessage(message->HEADER.SOURCE_QID, result);
 
