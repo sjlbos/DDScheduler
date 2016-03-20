@@ -16,6 +16,7 @@ static TaskList g_OverdueTasks;
 
 // Task Creation
 static SchedulerTaskPtr _initializeSchedulerTask();
+static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original);
 static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline);
 
 // Task Priority
@@ -25,6 +26,7 @@ static void _setTaskAsOverdue(SchedulerTaskPtr task);
 
 // Task List Management
 static TaskListNodePtr _initializeTaskListNode();
+static TaskList _copyTaskList(TaskList original);
 static void _addTaskToSequentialList(SchedulerTaskPtr task, TaskList* list);
 static uint32_t _addTaskToDeadlinePrioritizedList(SchedulerTaskPtr newTask, TaskList* list);
 static SchedulerTaskPtr _removeTaskWithIdFromTaskList(_task_id taskId, TaskList* list);
@@ -97,11 +99,11 @@ bool deleteTask(_task_id taskId){
 }
 
 TaskList getCopyOfActiveTasks(){
-	return NULL;
+	return _copyTaskList(g_ActiveTasks);
 }
 
 TaskList getCopyOfOverdueTasks(){
-	return NULL;
+	return _copyTaskList(g_OverdueTasks);
 }
 
 /*=============================================================
@@ -116,6 +118,14 @@ static SchedulerTaskPtr _initializeSchedulerTask(){
 	}
 	memset(task, 0, sizeof(SchedulerTask));
 	return task;
+}
+
+static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original){
+	SchedulerTaskPtr copy = _initializeSchedulerTask();
+	copy->CreatedAt = original->CreatedAt;
+	copy->Deadline = original->Deadline;
+	copy->TaskId = original->TaskId;
+	copy->TaskType = original->TaskType;
 }
 
 static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline){
@@ -182,6 +192,26 @@ static TaskListNodePtr _initializeTaskListNode(){
 	}
 	memset(node, 0, sizeof(TaskListNode));
 	return node;
+}
+
+static TaskList _copyTaskList(TaskList original){
+	if (original == NULL){
+		return NULL;
+	}
+
+	TaskListNodePtr originalNode = original;
+	TaskListNodePtr copyNode = _initializeTaskListNode();
+	TaskList copy = copyNode;
+	for(;;){
+		copyNode->task = _copySchedulerTask(originalNode->task);
+		if(originalNode->nextNode == NULL){
+			break;
+		}
+		originalNode = originalNode->nextNode;
+		copyNode->nextNode = _initializeTaskListNode();
+		copyNode = copyNode->nextNode;
+	}
+	return copy;
 }
 
 static void _addTaskToSequentialList(SchedulerTaskPtr task, TaskList* list){

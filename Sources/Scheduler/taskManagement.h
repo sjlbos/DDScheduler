@@ -17,4 +17,4 @@ bool deleteTask(_task_id taskId);
 TaskList getCopyOfActiveTasks();
 TaskList getCopyOfOverdueTasks();
 
-#endif /* SOURCES_SCHEDULER_TASKMANAGEMENT_H_ */
+#endif
