@@ -32,8 +32,7 @@ const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
 
 _queue_id _initializeQueue(int queueNum){
 	_queue_id queueId = _msgq_open(queueNum, 0);
-	if(queueId == 0){
-		_mqx_uint error = _task_get_error();
+	if(queueId == MSGQ_NULL_QUEUE_ID){
 		printf("Failed to open queue %d.\n", queueNum);
 		_task_block();
 	}
@@ -51,22 +50,33 @@ void runScheduler(os_task_param_t task_init_data)
 	_queue_id requestQueue = _initializeQueue(SCHEDULER_INTERFACE_QUEUE_ID);
 	_initializeScheduler(requestQueue, USER_TASKS, USER_TASK_COUNT);
 
+	MQX_TICK_STRUCT nextDeadline;
+	SchedulerRequestMessagePtr requestMessage;
+
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-	  SchedulerRequestMessagePtr requestMessage = NULL;
-	  uint32_t nextDeadline = _getNextDeadline();
+	  requestMessage = NULL;
+	  bool deadlineExists = _getNextDeadline(&nextDeadline);
 
-	  // If there are no tasks (no current deadline), wait for the first request to the scheduler
-	  if(nextDeadline == NO_DEADLINE){
-		  requestMessage = _msgq_receive(requestQueue, 0);
-		  _handleSchedulerRequest(requestMessage);
-		  _msg_free(requestMessage);
+	  // If the scheduler currently has tasks, wait for a new message or the next deadline
+	  if(deadlineExists){
+		  requestMessage = _msgq_receive_until(requestQueue, &nextDeadline);
+
+		  // Handle reached deadlines
+		  if(requestMessage == NULL){
+			  _handleDeadlineReached();
+			  continue;
+		  }
 	  }
-	  // Otherwise, wait until a request arrives or until the current deadline is reached
+	  // Otherwise wait indefinitely for a scheduler request
 	  else{
-		  //requestMessage = _msgq_receive_until(requestQueue, ...);
+		  requestMessage = _msgq_receive(requestQueue, 0);
 	  }
+
+	  // Handle scheduler requests
+	  _handleSchedulerRequest(requestMessage);
+	  _msg_free(requestMessage);
 
 #ifdef PEX_USE_RTOS   
   }
