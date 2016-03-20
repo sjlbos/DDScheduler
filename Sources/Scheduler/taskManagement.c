@@ -17,7 +17,7 @@ static TaskList g_OverdueTasks;
 // Task Creation
 static SchedulerTaskPtr _initializeSchedulerTask();
 static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original);
-static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline);
+static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline);
 
 // Task Priority
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task);
@@ -36,7 +36,6 @@ static SchedulerTaskPtr _removeTaskWithIdFromTaskList(_task_id taskId, TaskList*
  ==============================================================*/
 
 void initializeTaskManager(const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount){
-	_time_set_ticks_per_sec(1000); // Set tick interval to 1 millisecond
 	g_TaskTemplates = taskTemplates;
 	g_TaskTemplateCount = taskTemplateCount;
 	g_ActiveTasks = NULL;
@@ -44,7 +43,7 @@ void initializeTaskManager(const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t 
 	g_CurrentTask = NULL;
 }
 
-_task_id createTask(uint32_t templateIndex, uint32_t msToDeadline){
+_task_id createTask(uint32_t templateIndex, uint32_t ticksToDeadline){
 	// Ensure template index is valid
 	if(templateIndex >= g_TaskTemplateCount){
 		return MQX_NULL_TASK_ID;
@@ -57,7 +56,7 @@ _task_id createTask(uint32_t templateIndex, uint32_t msToDeadline){
 		_task_block();
 	}
 
-	_scheduleNewTask(newTaskId, msToDeadline);
+	_scheduleNewTask(newTaskId, ticksToDeadline);
 
 	return newTaskId;
 }
@@ -146,14 +145,14 @@ static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original){
 	return copy;
 }
 
-static void _scheduleNewTask(_task_id taskId, uint32_t msToDeadline){
+static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline){
 
 	// Initialize task struct
 	SchedulerTaskPtr newTask = _initializeSchedulerTask();
 	newTask->TaskId = taskId;
 	_time_get_ticks(&newTask->CreatedAt);
 	newTask->Deadline = newTask->CreatedAt;
-	_time_add_msec_to_ticks(&newTask->Deadline, msToDeadline);
+	newTask->Deadline.TICKS[0] += ticksToDeadline;
 
 	// Add the new task to the list of active tasks
 	uint32_t taskIndex = _addTaskToDeadlinePrioritizedList(newTask, &g_ActiveTasks);

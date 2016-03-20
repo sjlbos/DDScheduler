@@ -11,7 +11,7 @@
                     TASK MANAGER INTERFACE
  ==============================================================*/
 
-void intializeTaskManager(const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount);
+void initializeTaskManager(const TASK_TEMPLATE_STRUCT taskTemplates[], uint32_t taskTemplateCount);
 _task_id createTask(uint32_t templateIndex, uint32_t msToDeadline);
 _task_id setCurrentTaskAsOverdue();
 bool deleteTask(_task_id taskId);

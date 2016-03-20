@@ -48,14 +48,14 @@ _task_id dd_tcreate(uint32_t templateIndex, uint32_t deadline){
 
 	// Put create message on scheduler's request queue
 	if(_msgq_send(createMessage) != TRUE){
-		printf("Unable to send create task message.\n");
+		printf("[User] Unable to send create task message.\n");
 		_task_block();
 	}
 
 	// Wait for response from scheduler
 	TaskCreateResponseMessagePtr response = (TaskCreateResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
-		printf("Failed to receive a create task response from the scheduler.\n");
+		printf("[User] Failed to receive a create task response from the scheduler.\n");
 		_task_block();
 	}
 
@@ -65,7 +65,7 @@ _task_id dd_tcreate(uint32_t templateIndex, uint32_t deadline){
 	// Free the response message and destroy the queue
 	_msg_free(response);
 	if(_msgq_close(responseQueue) != TRUE){
-		printf("Unable to close response queue.\n");
+		printf("[User] Unable to close response queue.\n");
 		_task_block();
 	}
 
@@ -88,7 +88,7 @@ bool dd_delete(_task_id taskId){
 
 	// Put delete message on scheduler's request queue
 	if(_msgq_send(deleteMessage) != TRUE){
-		printf("Unable to send delete task message.\n");
+		printf("[User] Unable to send delete task message.\n");
 		_task_block();
 	}
 
@@ -96,7 +96,7 @@ bool dd_delete(_task_id taskId){
 		// Wait for response from scheduler
 		TaskDeleteResponseMessagePtr response = (TaskDeleteResponseMessagePtr) _msgq_receive(responseQueue, 0);
 		if(response == NULL){
-			printf("Failed to receive a delete task response from the scheduler.\n");
+			printf("[User] Failed to receive a delete task response from the scheduler.\n");
 			_task_block();
 		}
 
@@ -106,13 +106,14 @@ bool dd_delete(_task_id taskId){
 		// Free the response message and destroy the queue
 		_msg_free(response);
 		if(_msgq_close(responseQueue) != TRUE){
-			printf("Unable to close response queue.\n");
+			printf("[User] Unable to close response queue.\n");
 			_task_block();
 		}
 		return result;
 	}
 
 	_task_block();
+	return false;
 }
 
 bool dd_return_active_list(TaskList* taskList){
@@ -123,14 +124,14 @@ bool dd_return_active_list(TaskList* taskList){
 
 	// Put create message on scheduler's request queue
 	if(_msgq_send(requestActiveMessage) != TRUE){
-		printf("Unable to send request active tasks message.\n");
+		printf("[User] Unable to send request active tasks message.\n");
 		_task_block();
 	}
 
 	// Wait for response from scheduler
 	TaskListResponseMessagePtr response = (TaskListResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
-		printf("Failed to receive a task list response from the scheduler.\n");
+		printf("[User] Failed to receive a task list response from the scheduler.\n");
 		_task_block();
 	}
 
@@ -140,7 +141,7 @@ bool dd_return_active_list(TaskList* taskList){
 	// Free the response message and destroy the queue
 	_msg_free(response);
 	if(_msgq_close(responseQueue) != TRUE){
-		printf("Unable to close response queue.\n");
+		printf("[User] Unable to close response queue.\n");
 		_task_block();
 	}
 
@@ -155,14 +156,14 @@ bool dd_return_overdue_list(TaskList* taskList){
 
 	// Put create message on scheduler's request queue
 	if(_msgq_send(requestOverdueMessage) != TRUE){
-		printf("Unable to send request active tasks message.\n");
+		printf("[User] Unable to send request active tasks message.\n");
 		_task_block();
 	}
 
 	// Wait for response from scheduler
 	TaskListResponseMessagePtr response = (TaskListResponseMessagePtr) _msgq_receive(responseQueue, 0);
 	if(response == NULL){
-		printf("Failed to receive a task list response from the scheduler.\n");
+		printf("[User] Failed to receive a task list response from the scheduler.\n");
 		_task_block();
 	}
 
@@ -172,7 +173,7 @@ bool dd_return_overdue_list(TaskList* taskList){
 	// Free the response message and destroy the queue
 	_msg_free(response);
 	if(_msgq_close(responseQueue) != TRUE){
-		printf("Unable to close response queue.\n");
+		printf("[User] Unable to close response queue.\n");
 		_task_block();
 	}
 
@@ -206,7 +207,7 @@ void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage){
 			_handleRequestOverdueTasksMessage(requestMessage);
 			break;
 		default:
-			printf("Encountered an invalid request type.\n");
+			printf("[Scheduler] Encountered an invalid request type.\n");
 			_task_block();
 	}
 }
@@ -225,6 +226,8 @@ bool _getNextDeadline(MQX_TICK_STRUCT_PTR deadline){
  ==============================================================*/
 
 static void _handleCreateTaskMessage(TaskCreateMessagePtr message){
+	printf("[Scheduler] Received a create request for a task at index %u with deadline %u.\n",
+		message->TemplateIndex, message->TicksToDeadline);
 
 	// Create a new task
 	_task_id newTaskId = createTask(message->TemplateIndex, message->TicksToDeadline);
@@ -240,6 +243,7 @@ static void _handleCreateTaskMessage(TaskCreateMessagePtr message){
 }
 
 static void _handleDeleteTaskMessage(TaskDeleteMessagePtr message){
+	printf("[Scheduler] Received a delete request for task %u.\n", message->TaskId);
 
 	// Delete the task
 	bool result = deleteTask(message->TaskId);
@@ -255,6 +259,7 @@ static void _handleDeleteTaskMessage(TaskDeleteMessagePtr message){
 }
 
 static void _handleRequestActiveTasksMessage(SchedulerRequestMessagePtr message){
+	printf("[Scheduler] Received a request for active tasks.\n");
 
 	// Get active tasks
 	TaskList activeTasks = getCopyOfActiveTasks();
@@ -270,6 +275,7 @@ static void _handleRequestActiveTasksMessage(SchedulerRequestMessagePtr message)
 }
 
 static void _handleRequestOverdueTasksMessage(SchedulerRequestMessagePtr message){
+	printf("[Scheduler] Received a request for overdue tasks.\n");
 
 	// Get overdue tasks
 	TaskList overdueTasks = getCopyOfOverdueTasks();
@@ -279,7 +285,7 @@ static void _handleRequestOverdueTasksMessage(SchedulerRequestMessagePtr message
 
 	// Send response
 	if(_msgq_send(response) != TRUE){
-		printf("Unable to send active tasks response.\n");
+		printf("[Scheduler] Unable to send active tasks response.\n");
 		_task_block();
 	}
 }
@@ -354,7 +360,7 @@ static SchedulerMessagePtr _initializeSchedulerMessage(){
 	SchedulerMessagePtr message = (SchedulerMessagePtr)_msg_alloc(g_SchedulerMessagePool);
 
 	if (message == NULL){
-		printf("Could not allocate a TaskCreateMessage.\n");
+		printf("Could not allocate a SchedulerMessage.\n");
 		_task_block();
 	}
 
