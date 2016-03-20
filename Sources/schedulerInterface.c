@@ -1,7 +1,6 @@
 #include "schedulerInterface.h"
 #include "Scheduler/scheduler.h"
 #include "TerminalDriver/handler.h"
-#include "monitor.h"
 
 const char token[2] = " ";
 

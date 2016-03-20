@@ -23,7 +23,6 @@
 
 #include "Scheduler/scheduler.h"
 #include "TerminalDriver/handler.h"
-#include "monitor.h"
 #include "schedulerInterface.h"
 #include "serialHandler.h"
 #include "statusUpdate.h"
@@ -64,6 +63,11 @@ void runPeriodicTask();
 void runOnceTask();
 
 /* END os_tasks */
+
+/*=============================================================
+                     INTERNAL FUNCTIONS
+ ==============================================================*/
+
 
 #ifdef __cplusplus
 }  /* extern "C" */

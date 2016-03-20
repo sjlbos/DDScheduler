@@ -2,7 +2,6 @@
 #include "schedulerInterface.h"
 #include "Scheduler/scheduler.h"
 #include "TerminalDriver/handler.h"
-#include "monitor.h"
 
 //print out tasks in a nice format
 void _prettyPrintTaskList(TaskList taskList){
@@ -39,17 +38,17 @@ void _handleOverdue(){
 }
 
 //prints cpu utilization
-void _handleCPUUtilization(uint32_t period){
-	uint32_t idleMilliseconds = IdleTime();
-	float CPUUtilization = idleMilliseconds/period;
+void _handleCPUUtilization(uint32_t period, uint32_t timePassed){
+	float CPUUtilization = timePassed/period;
 	printf("CPU Utilization is: %f\n", CPUUtilization);
 	return;
 }
 
-void StatusUpdate(uint32_t period){
+//provide an update
+void StatusUpdate(uint32_t period, uint32_t timePassed){
 	printf("Status Update: Interval %u\n", period);
 	_handleActive();
 	_handleOverdue();
-	_handleCPUUtilization(period);
+	_handleCPUUtilization(period, timePassed);
 	return;
 }

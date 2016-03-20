@@ -1,3 +1,6 @@
+#include "Cpu.h"
+#include "Events.h"
+#include "rtos_main_task.h"
 #include "os_tasks.h"
 
 
@@ -8,7 +11,8 @@ extern "C" {
 /*=============================================================
                         GLOBAL VARIABLES
  ==============================================================*/
-
+uint32_t g_ticks;//ticks in the monitor
+uint32_t g_milliseconds; //ms in the monitor
 _pool_id g_InterruptMessagePool;	// A message pool for messages sent between from the UART event handler to the handler task
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
@@ -231,6 +235,7 @@ void runOnceTask(){
 
 void runMonitor(os_task_param_t task_init_data)
 {
+	printf("Monitor Task started\n");
 	g_ticks = 0;
 	g_milliseconds = 0;
 	uint32_t ticksPerMillisecond = _time_get_ticks_per_sec()*1000;
@@ -255,9 +260,11 @@ void runMonitor(os_task_param_t task_init_data)
 
 void runStatusUpdate(os_task_param_t task_init_data)
 {
+	printf("Status Update Task started.\n");
 	uint32_t period = 10000;//period of status updates in ms
 	//uint32_t period = task_init_data[2];//to get from init data
-	StatusUpdate(period);
+	StatusUpdate(period, g_milliseconds);
+	g_milliseconds = 0;
 }
 
 #ifdef __cplusplus
