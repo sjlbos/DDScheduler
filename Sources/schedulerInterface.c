@@ -28,10 +28,10 @@ bool _handleDelete(char* outputString){
 //print out tasks in a nice format
 void _prettyPrintTaskList(TaskList taskList){
 	do{
-			printf("Task ID:      %u\n", taskList->task->TaskId);
-			printf("Task Deadline:%u\n", taskList->task->Deadline);
-			printf("Task Type:    %u\n", taskList->task->TaskType);
-			printf("Task Created: %u\n\n", taskList->task->CreatedAt);
+			printf("[Scheduler Interface] Task ID:      %u\n", taskList->task->TaskId);
+			printf("[Scheduler Interface] Task Deadline:%u\n", taskList->task->Deadline);
+			printf("[Scheduler Interface] Task Type:    %u\n", taskList->task->TaskType);
+			printf("[Scheduler Interface] Task Created: %u\n\n", taskList->task->CreatedAt);
 			taskList = taskList->nextNode;
 	}while(taskList!=NULL);
 	return;
@@ -42,7 +42,7 @@ void _handleActive(){
 	TaskList taskList;
 	dd_return_active_list(&taskList);
 	if(taskList == NULL) return;
-	printf("Active Tasks:\n");
+	printf("[Scheduler Interface] Active Tasks:\n");
 	_prettyPrintTaskList(taskList);
 	free(taskList);
 	return;
@@ -53,7 +53,7 @@ void _handleOverdue(){
 	TaskList taskList;
 	dd_return_overdue_list(&taskList);
 	if(taskList == NULL) return;
-	printf("OverDue Tasks:\n");
+	printf("[Scheduler Interface] OverDue Tasks:\n");
 	_prettyPrintTaskList(taskList);
 	free(taskList);
 	return;
@@ -62,7 +62,7 @@ void _handleOverdue(){
 //handles the different commands that the user can input
 bool HandleCommand(char* outputString){
 	//parse the input string
-	printf("Received string: %s\n", outputString);
+	printf("[Scheduler Interface] Received string: %s\n", outputString);
 	switch(outputString[0]){
 		case 'c'://task create
 			if(_handleCreate(outputString) == 0) return false;

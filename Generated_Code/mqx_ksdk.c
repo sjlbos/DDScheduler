@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2016-03-19, 14:22, # CodeGen: 4
+**     Date/Time   : 2016-03-20, 15:43, # CodeGen: 6
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -61,6 +61,8 @@
 #include "ddScheduler.h"
 #include "serialHandler.h"
 #include "SchedulerInterface.h"
+#include "monitor.h"
+#include "statusUpdate.h"
 extern void * kernel_data_prv;
 #if MQXCFG_PREALLOCATED_SYSTEM_STACKS
 extern uint8_t mqx_interrupt_stack[];
@@ -113,6 +115,28 @@ const TASK_TEMPLATE_STRUCT MQX_template_list[] =
     /* Stack size                     */  SCHEDULERINTERFACE_TASK_STACK_SIZE,
     /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(SCHEDULERINTERFACE_TASK_PRIORITY)),
     /* Task name                      */  SCHEDULERINTERFACE_TASK_NAME,
+    /* Task attributes                */  (0),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: monitor */
+  {
+    /* Task number                    */  MONITOR_TASK,
+    /* Entry point                    */  (TASK_FPTR)runMonitor,
+    /* Stack size                     */  MONITOR_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(MONITOR_TASK_PRIORITY)),
+    /* Task name                      */  MONITOR_TASK_NAME,
+    /* Task attributes                */  (0),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: statusUpdate */
+  {
+    /* Task number                    */  STATUSUPDATE_TASK,
+    /* Entry point                    */  (TASK_FPTR)runStatusUpdate,
+    /* Stack size                     */  STATUSUPDATE_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(STATUSUPDATE_TASK_PRIORITY)),
+    /* Task name                      */  STATUSUPDATE_TASK_NAME,
     /* Task attributes                */  (0),
     /* Task parameter                 */  (uint32_t)(NULL),
     /* Task time slice                */  (uint32_t)(0U)

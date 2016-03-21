@@ -2,7 +2,7 @@
 #include "Events.h"
 #include "rtos_main_task.h"
 #include "os_tasks.h"
-
+#include <timer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -182,7 +182,7 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 
 	//Try to get read permission
 	if(!OpenR(receiveQueue)){
-		printf("SchedulerInterface OpenR() failed.\n");
+		printf("[Scheduler Interface] SchedulerInterface OpenR() failed.\n");
 		_task_block();
 	}
 
@@ -203,7 +203,7 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 
 	  //listen for commands
 	  if(!HandleCommand(outputString)){
-		  printf("Not a valid command\n");
+		  printf("[Scheduler Interface] Not a valid command\n");
 	  }
 
 	  //Wipe outputString
@@ -235,7 +235,7 @@ void runOnceTask(){
 
 void runMonitor(os_task_param_t task_init_data)
 {
-	printf("Monitor Task started\n");
+	printf("[Monitor] Monitor Task started\n");
 	g_ticks = 0;
 	g_milliseconds = 0;
 	uint32_t ticksPerMillisecond = _time_get_ticks_per_sec()*1000;
@@ -260,11 +260,14 @@ void runMonitor(os_task_param_t task_init_data)
 
 void runStatusUpdate(os_task_param_t task_init_data)
 {
-	printf("Status Update Task started.\n");
-	uint32_t period = 10000;//period of status updates in ms
-	//uint32_t period = task_init_data[2];//to get from init data
-	StatusUpdate(period, g_milliseconds);
-	g_milliseconds = 0;
+	printf("[Status Update] Status Update Task started.\n");
+	uint32_t *ms_ptr = &g_milliseconds;
+	StatusUpdate(ms_ptr);
+	_timer_id result = _timer_start_periodic_every(StatusUpdate,ms_ptr,TIMER_ELAPSED_TIME_MODE, 10);
+	if(result == TIMER_NULL_ID){
+		printf("[Status Update] Failed to create periodic function call\n");
+		_task_block();
+	}
 }
 
 #ifdef __cplusplus

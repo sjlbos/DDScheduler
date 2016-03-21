@@ -43,6 +43,8 @@
 #include "myUART.h"
 #include "serialHandler.h"
 #include "SchedulerInterface.h"
+#include "monitor.h"
+#include "statusUpdate.h"
 
 #ifdef __cplusplus
 extern "C" {
