@@ -19,6 +19,10 @@ static SchedulerTaskPtr _initializeSchedulerTask();
 static SchedulerTaskPtr _copySchedulerTask(SchedulerTaskPtr original);
 static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline);
 
+// Task Deletion
+static bool _deleteOverdueTask(_task_id taskId);
+static bool _deleteActiveTask(_task_id taskId);
+
 // Task Priority
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task);
 static void _unblockTask(_task_id taskId);
@@ -67,39 +71,16 @@ _task_id setCurrentTaskAsOverdue(){
 	}
 
 	SchedulerTaskPtr overdueTask = g_CurrentTask;
-	_setTaskPriorityTo(OVERDUE_TASK_PRIORITY, overdueTask->TaskId);
 	_removeTaskWithIdFromTaskList(overdueTask->TaskId, &g_ActiveTasks);
 	_addTaskToSequentialList(overdueTask, &g_OverdueTasks);
+
+	_task_destroy(overdueTask->TaskId);
 
 	return overdueTask->TaskId;
 }
 
 bool deleteTask(_task_id taskId){
-
-	// Try to remove the task from the list of active tasks
-	SchedulerTaskPtr removedTask = _removeTaskWithIdFromTaskList(taskId, &g_ActiveTasks);
-
-	// If the task was not an active task, try deleting from the list of overdue tasks
-	if(removedTask == NULL){
-		removedTask = _removeTaskWithIdFromTaskList(taskId, &g_OverdueTasks);
-
-		// If the task is still not found, it does not exist in the scheduler
-		if (removedTask == NULL){
-			return false;
-		}
-	}
-
-	// If the deleted task is the currently running task...
-	if(g_CurrentTask->TaskId == taskId){
-		// Set the currently running task to the next task in the active queue or NULL if there are no active tasks
-		_setCurrentlyRunningTask((g_ActiveTasks == NULL) ? NULL : g_ActiveTasks->task);
-	}
-
-	// Destroy deleted task and free its memory
-	_task_destroy(taskId);
-	free(removedTask);
-
-	return true;
+	return _deleteActiveTask(taskId) || _deleteOverdueTask(taskId);
 }
 
 TaskList getCopyOfActiveTasks(){
@@ -168,17 +149,43 @@ static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline){
 }
 
 /*=============================================================
+                        TASK DELETION
+ ==============================================================*/
+
+static bool _deleteOverdueTask(_task_id taskId){
+	SchedulerTaskPtr removedTask = _removeTaskWithIdFromTaskList(taskId, &g_OverdueTasks);
+	if(removedTask == NULL){
+		return false;
+	}
+
+	free(removedTask);
+	return true;
+}
+
+static bool _deleteActiveTask(_task_id taskId){
+	SchedulerTaskPtr removedTask = _removeTaskWithIdFromTaskList(taskId, &g_ActiveTasks);
+	if(removedTask == NULL){
+		return false;
+	}
+
+	_task_destroy(taskId);
+
+	// If the deleted task is the currently running task...
+	if(g_CurrentTask->TaskId == taskId){
+		// Set the currently running task to the next task in the active queue or NULL if there are no active tasks
+		_setCurrentlyRunningTask((g_ActiveTasks == NULL) ? NULL : g_ActiveTasks->task);
+	}
+
+	free(removedTask);
+
+	return true;
+}
+
+/*=============================================================
                     RUNNING TASK MANAGEMENT
  ==============================================================*/
 
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task){
-	if (g_CurrentTask != NULL){
-		if(task->TaskId == g_CurrentTask->TaskId){
-			return;
-		}
-		_setTaskPriorityTo(DEFAULT_TASK_PRIORITY, g_CurrentTask->TaskId);
-	}
-
 	g_CurrentTask = task;
 	if(g_CurrentTask != NULL){
 		_setTaskPriorityTo(RUNNING_TASK_PRIORITY, g_CurrentTask->TaskId);

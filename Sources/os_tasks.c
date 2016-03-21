@@ -27,7 +27,7 @@ MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's i
 const uint32_t USER_TASK_COUNT = 2;
 const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
 		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0},
-		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 50, 0}
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 5000, 0}
 };
 
 /*=============================================================
