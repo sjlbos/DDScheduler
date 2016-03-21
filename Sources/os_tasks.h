@@ -60,8 +60,7 @@ void runSerialHandler(os_task_param_t task_init_data);
 void runSchedulerInterface(os_task_param_t task_init_data);
 void runMonitor(os_task_param_t task_init_data);
 void runStatusUpdate(os_task_param_t task_init_data);
-void runPeriodicTask();
-void runOnceTask();
+void runUserTask(uint32_t numTicks);
 
 /* END os_tasks */
 
