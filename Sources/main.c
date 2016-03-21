@@ -46,6 +46,7 @@
 #include "SchedulerInterface.h"
 #include "monitor.h"
 #include "statusUpdate.h"
+#include "periodicHandler.h"
 #if CPU_INIT_CONFIG
   #include "Init_Config.h"
 #endif
