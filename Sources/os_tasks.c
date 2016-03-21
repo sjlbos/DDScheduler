@@ -274,12 +274,15 @@ void runStatusUpdate(os_task_param_t task_init_data)
 {
 	printf("[Status Update] Status Update Task started.\n");
 	uint32_t *ms_ptr = &g_milliseconds;
-	StatusUpdate(ms_ptr);
-	_timer_id result = _timer_start_periodic_every(StatusUpdate,ms_ptr,TIMER_ELAPSED_TIME_MODE, 10);
-	if(result == TIMER_NULL_ID){
-		printf("[Status Update] Failed to create periodic function call\n");
-		_task_block();
+	while(1){
+		StatusUpdate(ms_ptr);
+		_time_delay(1000);
 	}
+//	_timer_id result = _timer_start_periodic_every(StatusUpdate,ms_ptr,TIMER_ELAPSED_TIME_MODE, 10);
+//	if(result == TIMER_NULL_ID){
+//		printf("[Status Update] Failed to create periodic function call\n");
+//		_task_block();
+//	}
 }
 
 #ifdef __cplusplus
