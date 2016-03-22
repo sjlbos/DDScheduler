@@ -2,7 +2,6 @@
 #include "Events.h"
 #include "rtos_main_task.h"
 #include "os_tasks.h"
-#include <timer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,8 +10,8 @@ extern "C" {
 /*=============================================================
                         GLOBAL VARIABLES
  ==============================================================*/
-uint32_t g_ticks;//ticks in the monitor
-uint32_t g_milliseconds; //ms in the monitor
+
+uint32_t g_IdleMilliseconds; 		// The number of milliseconds the idle task has been running for since the last status update
 _pool_id g_InterruptMessagePool;	// A message pool for messages sent between from the UART event handler to the handler task
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
@@ -241,23 +240,24 @@ void runUserTask(uint32_t numTicks){
 
 void runMonitor(os_task_param_t task_init_data)
 {
-	printf("[Monitor] Monitor Task started\n");
-	g_ticks = 0;
-	g_milliseconds = 0;
+	printf("[Monitor] Task started.\n");
+
 	uint32_t ticksPerMillisecond = _time_get_ticks_per_sec()*1000;
+	uint32_t ticksRun = 0;
+	g_IdleMilliseconds = 0;
 
-#ifdef PEX_USE_RTOS
-  while (1) {
-#endif
-	  	 while(g_ticks < ticksPerMillisecond){
-	  		 g_ticks ++;
-	  	 }
-	  	 g_milliseconds ++;
-	  	 g_ticks = 0;
+	#ifdef PEX_USE_RTOS
+	  while (1) {
+	#endif
+		 while(ticksRun < ticksPerMillisecond){
+			 ticksRun ++;
+		 }
+		 g_IdleMilliseconds ++;
+		 ticksRun = 0;
 
-#ifdef PEX_USE_RTOS   
-  }
-#endif    
+	#ifdef PEX_USE_RTOS
+	  }
+	#endif
 }
 
 /*=============================================================
@@ -266,17 +266,19 @@ void runMonitor(os_task_param_t task_init_data)
 
 void runStatusUpdate(os_task_param_t task_init_data)
 {
-	printf("[Status Update] Status Update Task started.\n");
-	uint32_t *ms_ptr = &g_milliseconds;
+	printf("[Status Update] Task started.\n");
+
+	float cpuUtilization;
+
 	while(1){
-		StatusUpdate(ms_ptr);
-		_time_delay(40000);
+		_time_delay(STATUS_UPDATE_PERIOD);
+
+		cpuUtilization = (float) (g_IdleMilliseconds / STATUS_UPDATE_PERIOD) * 100;
+
+		printf("[Status Update] CPU Utilization is: %.4f%% \n", cpuUtilization);
+
+		g_IdleMilliseconds = 0;
 	}
-//	_timer_id result = _timer_start_periodic_every(StatusUpdate,ms_ptr,TIMER_ELAPSED_TIME_MODE, 10);
-//	if(result == TIMER_NULL_ID){
-//		printf("[Status Update] Failed to create periodic function call\n");
-//		_task_block();
-//	}
 }
 
 
