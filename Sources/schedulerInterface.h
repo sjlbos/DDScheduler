@@ -7,16 +7,6 @@
 #include <string.h>
 
 /*=============================================================
-                      INTERNAL INTERFACE
+                  SCHEDULER INTERFACE INTERFACE
  ==============================================================*/
-
-_task_id _handleCreate(char* outputString);
-bool _handleDelete(char* outputString);
-void _handleActive();
-void _handlerOverdue();
-void _prettyPrintTaskList();
-_task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period);
-/*=============================================================
-                      SCHEDULER INTERFACE
- ==============================================================*/
-bool HandleCommand(char* outputString);
+bool si_handleCommand(char* commandString);

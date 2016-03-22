@@ -49,7 +49,7 @@ _queue_id _initializeQueue(int queueNum){
 
 void runScheduler(os_task_param_t task_init_data)
 {
-	printf("\r\nScheduler task started.\r\n");
+	printf("[Scheduler] Task started.\n");
 
 	_queue_id requestQueue = _initializeQueue(SCHEDULER_INTERFACE_QUEUE_ID);
 	_initializeScheduler(requestQueue, USER_TASKS, USER_TASK_COUNT);
@@ -115,7 +115,7 @@ void _initializeHandlerMessagePools(){
 
 void runSerialHandler(os_task_param_t task_init_data)
 {
-	printf("\r\nHandler task started.\r\n");
+	printf("[Serial Handler] Task started.\n");
 
 		// Initialize queues and message pools
 		_queue_id interruptQueue = _initializeQueue(HANDLER_INTERRUPT_QUEUE_ID);
@@ -135,13 +135,13 @@ void runSerialHandler(os_task_param_t task_init_data)
 	    // Wait for any incoming messages
 		GenericMessagePtr receivedMessage = (GenericMessagePtr) _msgq_receive(MSGQ_ANY_QUEUE, 0);
 		if (receivedMessage == NULL){
-			   printf("Handler failed to receive a message.\n");
+			   printf("[Serial Handler] Failed to receive a message.\n");
 			   _task_block();
 		}
 
 		// Lock access to the handler while it processses the message
 		if(_mutex_lock(&g_HandlerMutex) != MQX_OK){
-			printf("Mutex lock failed.\n");
+			printf("[Serial Handler] Mutex lock failed.\n");
 			_task_block();
 		}
 
@@ -170,50 +170,43 @@ void runSerialHandler(os_task_param_t task_init_data)
 
 void runSchedulerInterface(os_task_param_t task_init_data)
 {
-	//allow initializations to occur before trying to register
+	printf("[Scheduler Interface] Task started.\n");
+
+	// Allow scheduler and handler time to initialize
 	OSA_TimeDelay(40);
 
 	// Create a buffer for received messages
-	char outputString[HANDLER_BUFFER_SIZE + 1];
-	memset(outputString, 0, HANDLER_BUFFER_SIZE + 1);
+	char inputBuffer[HANDLER_BUFFER_SIZE + 1];
+	memset(inputBuffer, 0, HANDLER_BUFFER_SIZE + 1);
 
 	// Create a queue to receive messages
 	_queue_id receiveQueue = _initializeQueue(SCHEDULER_QUEUE_ID);
 
-	//Try to get read permission
+	// Register for reading with the serial handler
 	if(!OpenR(receiveQueue)){
-		printf("[Scheduler Interface] SchedulerInterface OpenR() failed.\n");
+		printf("[Scheduler Interface] Unable to register for reading with the serial handler.\n");
 		_task_block();
 	}
-
-	//This may not get used if we only use printf for feedback.
-	/*
-	_queue_id inputQueue = OpenW();
-	//Try to get write permission
-	if(inputQueue == 0){
-			printf("SchedulerInterface Openw failed.\n");
-			_task_block();
-	}*/
 
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-	  //Listen for input from user
-	  GetLine(outputString);
+	  // Wait for console input
+	  GetLine(inputBuffer);
 
-	  //listen for commands
-	  if(!HandleCommand(outputString)){
-		  printf("[Scheduler Interface] Not a valid command\n");
+	  // Handle input commands
+	  if(!si_handleCommand(inputBuffer)){
+		  printf("[Scheduler Interface] Invalid command.\n");
 	  }
 
-	  //Wipe outputString
-	  memset(outputString, 0, HANDLER_BUFFER_SIZE + 1);
+	  // Clear input buffer
+	  memset(inputBuffer, 0, HANDLER_BUFFER_SIZE + 1);
 
 #ifdef PEX_USE_RTOS   
   }
 #endif
 
-	//release read
+	// Unregister with the serial handler
 	Close();
 }
 
