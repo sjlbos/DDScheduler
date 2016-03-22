@@ -213,7 +213,8 @@ void _handleSchedulerRequest(SchedulerRequestMessagePtr requestMessage){
 }
 
 void _handleDeadlineReached(){
-	setCurrentTaskAsOverdue();
+	_task_id overdueTask = setCurrentTaskAsOverdue();
+	printf("[Scheduler] Task %u has overrun its deadline and has been destroyed.\n", overdueTask);
 }
 
 bool _getNextDeadline(MQX_TICK_STRUCT_PTR deadline){

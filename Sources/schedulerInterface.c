@@ -7,6 +7,24 @@
 #define PERIODIC_TASK_PRIORITY 19
 const char token[2] = " ";
 
+/*=============================================================
+                      FUNCTION PROTOTYPES
+ ==============================================================*/
+
+// Command handlers
+_task_id _handleCreateCommand(char* commandString);
+bool _handleDeleteCommand(char* commandString);
+void _handleGetActiveCommand();
+void _handleGetOverdueCommand();
+
+// Helper functions
+void _prettyPrintTaskList();
+_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period);
+
+/*=============================================================
+                      PERIODIC GENERATOR TASK
+ ==============================================================*/
+
 void runPeriodicGenerator(os_task_param_t task_init_data)
 {
   printf("[Scheduler Interface] Periodic Task created\n");
@@ -35,9 +53,37 @@ _task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t pe
 	return newTaskId;
 }
 
-//creates a task
-_task_id _handleCreate(char* outputString){
-	strtok(outputString,token);
+/*=============================================================
+                      PUBLIC INTERFACE
+ ==============================================================*/
+
+//handles the different commands that the user can input
+bool si_handleCommand(char* commandString){
+	printf("[Scheduler Interface] Received string: %s\n", commandString);
+	switch(commandString[0]){
+		case 'c':// Create a task
+			return _handleCreateCommand(commandString) != MQX_NULL_TASK_ID;
+		case 'd':// Delete a task
+			return _handleDeleteCommand(commandString);
+		case 'a':// Request active task list
+			_handleGetActiveCommand();
+			break;
+		case 'o': // Request overdue task list
+			_handleGetOverdueCommand();
+			break;
+		default:
+			printf("[Scheduler Interface] Invalid command.\n");
+			return false;
+	}
+	return true;
+}
+
+/*=============================================================
+                       COMMAND HANDLERS
+ ==============================================================*/
+
+_task_id _handleCreateCommand(char* commandString){
+	strtok(commandString,token);
 	uint32_t templateIndex = atoi(strtok(NULL,token));
 	uint32_t deadline = atoi(strtok(NULL,token));
 	uint32_t period = atoi(strtok(NULL,token));
@@ -48,9 +94,8 @@ _task_id _handleCreate(char* outputString){
 	}
 }
 
-//deletes a task
-bool _handleDelete(char* outputString){
-	strtok(outputString,token);
+bool _handleDeleteCommand(char* commandString){
+	strtok(commandString,token);
 	uint32_t taskId = atoi(strtok(NULL,token));
 	if(strtok(NULL,token) != NULL){
 			return false;
@@ -58,20 +103,7 @@ bool _handleDelete(char* outputString){
 	return dd_delete(taskId);
 }
 
-//print out tasks in a nice format
-void _prettyPrintTaskList(TaskList taskList){
-	do{
-			printf("[Scheduler Interface] Task ID:      %u\n", taskList->task->TaskId);
-			printf("[Scheduler Interface] Task Deadline:%u\n", taskList->task->Deadline);
-			printf("[Scheduler Interface] Task Type:    %u\n", taskList->task->TaskType);
-			printf("[Scheduler Interface] Task Created: %u\n\n", taskList->task->CreatedAt);
-			taskList = taskList->nextNode;
-	}while(taskList!=NULL);
-	return;
-}
-
-//provides feedback on active tasks
-void _handleActive(){
+void _handleGetActiveCommand(){
 	TaskList taskList;
 	dd_return_active_list(&taskList);
 	if(taskList == NULL){
@@ -85,38 +117,39 @@ void _handleActive(){
 }
 
 //provides feedback on overdue tasks
-void _handleOverdue(){
+void _handleGetOverdueCommand(){
 	TaskList taskList;
 	dd_return_overdue_list(&taskList);
 	if(taskList == NULL){
 		printf("[Scheduler Interface] No Overdue Tasks\n");
 		return;
 	}
-	printf("[Scheduler Interface] OverDue Tasks:\n");
+	printf("[Scheduler Interface] Overdue Tasks:\n");
 	_prettyPrintTaskList(taskList);
 	free(taskList);
 	return;
 }
 
-//handles the different commands that the user can input
-bool HandleCommand(char* outputString){
-	//parse the input string
-	printf("[Scheduler Interface] Received string: %s\n", outputString);
-	switch(outputString[0]){
-		case 'c'://task create
-			if(_handleCreate(outputString) == 0) return false;
-			break;
-		case 'd'://task delete
-			if(!_handleDelete(outputString)) return false;
-			break;
-		case 'a'://request active list
-			_handleActive();
-			break;
-		case 'o'://request overdue/dead list
-			_handleOverdue();
-			break;
-		default://not a valid command
-			return false;
-	}
-	return true;
+/*=============================================================
+                       HELPER FUNCTIONS
+ ==============================================================*/
+
+//print out tasks in a nice format
+void _prettyPrintTaskList(TaskList taskList){
+	do{
+		printf("\n{\n ID: %u\n Deadline:  %u\n Created At: %u\n}\n",
+				taskList->task->TaskId,
+				taskList->task->Deadline,
+				taskList->task->CreatedAt.TICKS[0]);
+		taskList = taskList->nextNode;
+	}while(taskList!=NULL);
+	printf("\n");
+	return;
+}
+
+_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period){
+//	TASK_TEMPLATE_STRUCT GeneratorTask[] = {
+//			{ 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0}
+//	};
+//	_task_id newTaskId = _task_create(0, 0, (uint32_t) GeneratorTask[0]);
 }

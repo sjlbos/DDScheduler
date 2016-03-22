@@ -39,8 +39,8 @@ void _handleOverdue(){
 
 //prints cpu utilization
 void _handleCPUUtilization(uint32_t period, uint32_t timePassed){
-	float CPUUtilization = timePassed/period;
-	printf("[Status Update] CPU Utilization is: %0.4f\n", CPUUtilization);
+	float CPUUtilization = (float) timePassed/period;
+	printf("[Status Update] CPU Utilization is: %.4f\n", CPUUtilization);
 	return;
 }
 

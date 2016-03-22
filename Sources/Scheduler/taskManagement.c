@@ -25,7 +25,6 @@ static bool _deleteActiveTask(_task_id taskId);
 
 // Task Priority
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task);
-static void _unblockTask(_task_id taskId);
 static void _setTaskPriorityTo(uint32_t priority, _task_id taskId);
 
 // Task List Management
@@ -54,7 +53,7 @@ _task_id createTask(uint32_t templateIndex, uint32_t ticksToDeadline){
 	}
 
 	// Create a blocked task
-	_task_id newTaskId = _task_create_blocked(0, 0, (uint32_t) &g_TaskTemplates[templateIndex]);
+	_task_id newTaskId = _task_create(0, 0, (uint32_t) &g_TaskTemplates[templateIndex]);
 	if (newTaskId == MQX_NULL_TASK_ID){
 		printf("Unable to create task.\n");
 		_task_block();
@@ -174,14 +173,14 @@ static bool _deleteActiveTask(_task_id taskId){
 		return false;
 	}
 
-	_task_destroy(taskId);
-
 	// If the deleted task is the currently running task...
 	if(g_CurrentTask->TaskId == taskId){
 		// Set the currently running task to the next task in the active queue or NULL if there are no active tasks
 		_setCurrentlyRunningTask((g_ActiveTasks == NULL) ? NULL : g_ActiveTasks->task);
 	}
 
+	// Destroy deleted task and clear its memory
+	_task_destroy(taskId);
 	free(removedTask);
 
 	return true;
@@ -192,16 +191,15 @@ static bool _deleteActiveTask(_task_id taskId){
  ==============================================================*/
 
 static void _setCurrentlyRunningTask(SchedulerTaskPtr task){
-	g_CurrentTask = task;
 	if(g_CurrentTask != NULL){
-		_setTaskPriorityTo(RUNNING_TASK_PRIORITY, g_CurrentTask->TaskId);
-		_unblockTask(g_CurrentTask->TaskId);
+		_setTaskPriorityTo(DEFAULT_TASK_PRIORITY, g_CurrentTask->TaskId);
 	}
-}
 
-static void _unblockTask(_task_id taskId){
-	TD_STRUCT_PTR taskDescriptor = _task_get_td(taskId);
-	_task_ready(taskDescriptor);
+	g_CurrentTask = task;
+
+	if(task != NULL){
+		_setTaskPriorityTo(RUNNING_TASK_PRIORITY, task->TaskId);
+	}
 }
 
 static void _setTaskPriorityTo(uint32_t priority, _task_id taskId){
