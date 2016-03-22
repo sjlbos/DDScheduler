@@ -276,7 +276,7 @@ void runStatusUpdate(os_task_param_t task_init_data)
 	uint32_t *ms_ptr = &g_milliseconds;
 	while(1){
 		StatusUpdate(ms_ptr);
-		_time_delay(1000);
+		_time_delay(5000);
 	}
 //	_timer_id result = _timer_start_periodic_every(StatusUpdate,ms_ptr,TIMER_ELAPSED_TIME_MODE, 10);
 //	if(result == TIMER_NULL_ID){
@@ -285,28 +285,5 @@ void runStatusUpdate(os_task_param_t task_init_data)
 //	}
 }
 
-/*=============================================================
-                    PERIODIC HANDLER TASK
- ==============================================================*/
-
-void runPeriodicHandler(os_task_param_t task_init_data)
-{
-  /* Write your local variable definition here */
-  
-#ifdef PEX_USE_RTOS
-  while (1) {
-#endif
-    /* Write your code here ... */
-    
-    
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-   
-    
-    
-    
-#ifdef PEX_USE_RTOS   
-  }
-#endif    
-}
 
 

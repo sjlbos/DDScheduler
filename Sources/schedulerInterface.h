@@ -15,7 +15,7 @@ bool _handleDelete(char* outputString);
 void _handleActive();
 void _handlerOverdue();
 void _prettyPrintTaskList();
-
+_task_id _create_periodic(uint32_t templateIndex, uint32_t deadline)
 /*=============================================================
                       SCHEDULER INTERFACE
  ==============================================================*/

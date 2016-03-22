@@ -73,7 +73,6 @@
       <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\</Path>
     </IncludePaths>
     <SourceCodePaths>
-      <Path>C:\Users\jorinw\Documents\DDScheduler\.metadata\.plugins\org.eclipse.cdt.make.core\</Path>
       <Path>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\</Path>
       <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\startup\</Path>
       <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\</Path>
@@ -115,7 +114,6 @@
   </PATHS>
   <FILES>
     <GeneratedCs>
-      <PathName>C:\Users\jorinw\Documents\DDScheduler\.metadata\.plugins\org.eclipse.cdt.make.core\specs.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\Cpu.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\MainTask.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\SchedulerInterface.c</PathName>
@@ -128,7 +126,6 @@
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\mqx_ksdk.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\myUART.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\osa1.c</PathName>
-      <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\periodicHandler.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\pin_init.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\serialHandler.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\statusUpdate.c</PathName>
@@ -289,7 +286,6 @@
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\mqx_ksdk.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\myUART.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\osa1.h</PathName>
-      <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\periodicHandler.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\pin_init.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\serialHandler.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\statusUpdate.h</PathName>

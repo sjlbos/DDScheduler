@@ -4,15 +4,24 @@
 
 const char token[2] = " ";
 
+_task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
+
+}
+
 //creates a task
 _task_id _handleCreate(char* outputString){
 	strtok(outputString,token);
 	uint32_t templateIndex = atoi(strtok(NULL,token));
-	uint32_t dealine = atoi(strtok(NULL,token));
+	uint32_t deadline = atoi(strtok(NULL,token));
+	uint32_t period = atoi(strtok(NULL,token));
 	if(strtok(NULL,token) != NULL){
 		return 0;
 	}
-	return dd_tcreate(templateIndex, dealine);
+	if(period != 0){
+		return _create_periodic(templateIndex, deadline, period);
+	}else{
+		return dd_tcreate(templateIndex, deadline);
+	}
 }
 
 //deletes a task
@@ -41,7 +50,10 @@ void _prettyPrintTaskList(TaskList taskList){
 void _handleActive(){
 	TaskList taskList;
 	dd_return_active_list(&taskList);
-	if(taskList == NULL) return;
+	if(taskList == NULL){
+		printf("[Scheduler Interface] No Active Tasks\n");
+		return;
+	}
 	printf("[Scheduler Interface] Active Tasks:\n");
 	_prettyPrintTaskList(taskList);
 	free(taskList);
@@ -52,7 +64,10 @@ void _handleActive(){
 void _handleOverdue(){
 	TaskList taskList;
 	dd_return_overdue_list(&taskList);
-	if(taskList == NULL) return;
+	if(taskList == NULL){
+		printf("[Scheduler Interface] No Overdue Tasks\n");
+		return;
+	}
 	printf("[Scheduler Interface] OverDue Tasks:\n");
 	_prettyPrintTaskList(taskList);
 	free(taskList);
