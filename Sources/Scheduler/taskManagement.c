@@ -66,14 +66,20 @@ _task_id createTask(uint32_t templateIndex, uint32_t ticksToDeadline){
 }
 
 _task_id setCurrentTaskAsOverdue(){
+	// If there is no current task, do nothing
 	if(g_CurrentTask == NULL){
 		return MQX_NULL_TASK_ID;
 	}
 
+	// Remove the overdue task from the list of active tasks and add it to the overdue task list
 	SchedulerTaskPtr overdueTask = g_CurrentTask;
 	_removeTaskWithIdFromTaskList(overdueTask->TaskId, &g_ActiveTasks);
 	_addTaskToSequentialList(overdueTask, &g_OverdueTasks);
 
+	// Update the new current task
+	_setCurrentlyRunningTask((g_ActiveTasks == NULL) ? NULL : g_ActiveTasks->task);
+
+	// Destroy the overdue task
 	_task_destroy(overdueTask->TaskId);
 
 	return overdueTask->TaskId;
@@ -201,7 +207,7 @@ static void _unblockTask(_task_id taskId){
 static void _setTaskPriorityTo(uint32_t priority, _task_id taskId){
 	uint32_t oldPriority;
 	if(_task_set_priority(taskId, priority, &oldPriority) != MQX_OK){
-		printf("Could not change priority of task %u.\n", taskId);
+		printf("[Scheduler] Could not change priority of task %u.\n", taskId);
 		_task_block();
 	}
 }
@@ -213,7 +219,7 @@ static void _setTaskPriorityTo(uint32_t priority, _task_id taskId){
 static TaskListNodePtr _initializeTaskListNode(){
 	TaskListNodePtr node;
 	if(!(node = (TaskListNodePtr) malloc(sizeof(TaskListNode)))){
-		printf("Unable to allocate memory for task list node struct.\n");
+		printf("[Scheduler] Unable to allocate memory for task list node struct.\n");
 		_task_block();
 	}
 	memset(node, 0, sizeof(TaskListNode));
