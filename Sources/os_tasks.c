@@ -285,5 +285,30 @@ void runStatusUpdate(os_task_param_t task_init_data)
 //	}
 }
 
+/*=============================================================
+                    PERIODIC GENERATOR TASK
+ ==============================================================*/
+
+
+void runPeriodicGenerator(os_task_param_t task_init_data)
+{
+  /* Write your local variable definition here */
+  
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+    /* Write your code here ... */
+    
+    
+    OSA_TimeDelay(10);                 /* Example code (for task release) */
+   
+    
+    
+    
+#ifdef PEX_USE_RTOS   
+  }
+#endif    
+}
+
 
 

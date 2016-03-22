@@ -45,6 +45,7 @@
 #include "SchedulerInterface.h"
 #include "monitor.h"
 #include "statusUpdate.h"
+#include "periodicGenerator.h"
 
 
 #ifdef __cplusplus
