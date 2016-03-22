@@ -45,7 +45,7 @@ void runPeriodicGenerator(os_task_param_t task_init_data)
 #endif
 }
 
-TASK_TEMPLATE_STRUCT *GeneratorTask = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
+TASK_TEMPLATE_STRUCT *GeneratorTask = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, PERIODIC_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
 
 _task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
 	_task_id newTaskId = _task_create(0, 0, (uint32_t) &GeneratorTask);
