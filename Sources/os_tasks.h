@@ -27,7 +27,6 @@
 #include "monitor.h"
 #include "serialHandler.h"
 #include "statusUpdate.h"
-#include "periodicGenerator.h"
 #include "Events.h"
 
 #ifdef __cplusplus
@@ -62,31 +61,6 @@ void runSchedulerInterface(os_task_param_t task_init_data);
 void runMonitor(os_task_param_t task_init_data);
 void runStatusUpdate(os_task_param_t task_init_data);
 void runUserTask(uint32_t numTicks);
-
-/*
-** ===================================================================
-**     Callback    : runPeriodicGenerator
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
-void runPeriodicGenerator(os_task_param_t task_init_data);
-
-/*
-** ===================================================================
-**     Callback    : runPeriodicHandler
-**     Description : Task function entry.
-**     Parameters  :
-**       task_init_data - OS task parameter
-**     Returns : Nothing
-** ===================================================================
-*/
-void runPeriodicHandler(os_task_param_t task_init_data);
-
-/* END os_tasks */
-
 /*=============================================================
                      INTERNAL FUNCTIONS
  ==============================================================*/

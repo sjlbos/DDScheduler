@@ -16,6 +16,7 @@ void _handleActive();
 void _handlerOverdue();
 void _prettyPrintTaskList();
 _task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period);
+
 /*=============================================================
                       SCHEDULER INTERFACE
  ==============================================================*/

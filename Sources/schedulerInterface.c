@@ -1,16 +1,38 @@
 #include "schedulerInterface.h"
 #include "Scheduler/scheduler.h"
 #include "TerminalDriver/handler.h"
+#include "mqx_ksdk.h"
 
 #define PERIODIC_TASK_STACK_SIZE 700
-
+#define PERIODIC_TASK_PRIORITY 19
 const char token[2] = " ";
 
+void runPeriodicGenerator(os_task_param_t task_init_data)
+{
+  printf("[Scheduler Interface] Periodic Task created\n");
+
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+    /* Write your code here ... */
+
+
+    OSA_TimeDelay(10);                 /* Example code (for task release) */
+
+
+
+
+#ifdef PEX_USE_RTOS
+  }
+#endif
+}
+
+TASK_TEMPLATE_STRUCT *GeneratorTask = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
+
 _task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
-	TASK_TEMPLATE_STRUCT GeneratorTask[] = {
-			{ 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0}
-	};
-//	_task_id newTaskId = _task_create(0, 0, (uint32_t) GeneratorTask[0]);
+	_task_id newTaskId = _task_create(0, 0, (uint32_t) &GeneratorTask);
+	uint32_t error = _task_get_error();
+	return newTaskId;
 }
 
 //creates a task
@@ -19,13 +41,10 @@ _task_id _handleCreate(char* outputString){
 	uint32_t templateIndex = atoi(strtok(NULL,token));
 	uint32_t deadline = atoi(strtok(NULL,token));
 	uint32_t period = atoi(strtok(NULL,token));
-	if(strtok(NULL,token) != NULL){
-		return 0;
-	}
-	if(period != 0){
-		return _create_periodic(templateIndex, deadline, period);
-	}else{
+	if(period == 0){
 		return dd_tcreate(templateIndex, deadline);
+	} else {
+		return _create_periodic(templateIndex, deadline, period);
 	}
 }
 
