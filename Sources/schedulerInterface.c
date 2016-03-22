@@ -7,9 +7,9 @@
 const char token[2] = " ";
 
 _task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
-	TASK_TEMPLATE_STRUCT GeneratorTask[] = {
-			{ 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0}
-	};
+//	TASK_TEMPLATE_STRUCT GeneratorTask[] = {
+//			{ 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0}
+//	};
 //	_task_id newTaskId = _task_create(0, 0, (uint32_t) GeneratorTask[0]);
 }
 
@@ -42,12 +42,13 @@ bool _handleDelete(char* outputString){
 //print out tasks in a nice format
 void _prettyPrintTaskList(TaskList taskList){
 	do{
-			printf("[Scheduler Interface] Task ID:      %u\n", taskList->task->TaskId);
-			printf("[Scheduler Interface] Task Deadline:%u\n", taskList->task->Deadline);
-			printf("[Scheduler Interface] Task Type:    %u\n", taskList->task->TaskType);
-			printf("[Scheduler Interface] Task Created: %u\n\n", taskList->task->CreatedAt);
-			taskList = taskList->nextNode;
+		printf("\n{\n ID: %u\n Deadline:  %u\n Created At: %u\n}\n",
+				taskList->task->TaskId,
+				taskList->task->Deadline,
+				taskList->task->CreatedAt.TICKS[0]);
+		taskList = taskList->nextNode;
 	}while(taskList!=NULL);
+	printf("\n");
 	return;
 }
 
@@ -73,7 +74,7 @@ void _handleOverdue(){
 		printf("[Scheduler Interface] No Overdue Tasks\n");
 		return;
 	}
-	printf("[Scheduler Interface] OverDue Tasks:\n");
+	printf("[Scheduler Interface] Overdue Tasks:\n");
 	_prettyPrintTaskList(taskList);
 	free(taskList);
 	return;
@@ -84,19 +85,18 @@ bool HandleCommand(char* outputString){
 	//parse the input string
 	printf("[Scheduler Interface] Received string: %s\n", outputString);
 	switch(outputString[0]){
-		case 'c'://task create
-			if(_handleCreate(outputString) == 0) return false;
-			break;
-		case 'd'://task delete
-			if(!_handleDelete(outputString)) return false;
-			break;
-		case 'a'://request active list
+		case 'c':// Create a task
+			return _handleCreate(outputString) != MQX_NULL_TASK_ID;
+		case 'd':// Delete a task
+			return _handleDelete(outputString);
+		case 'a':// Request active task list
 			_handleActive();
 			break;
-		case 'o'://request overdue/dead list
+		case 'o': // Request overdue task list
 			_handleOverdue();
 			break;
-		default://not a valid command
+		default:
+			printf("[Scheduler Interface] Invalid command.\n");
 			return false;
 	}
 	return true;

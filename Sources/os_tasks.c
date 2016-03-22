@@ -238,6 +238,7 @@ void doBusyWorkForTicks(uint32_t numTicks){
 void runUserTask(uint32_t numTicks){
 	printf("[User] Doing busy work for %u ticks.\n", numTicks);
 	doBusyWorkForTicks(numTicks);
+	printf("[User] Task complete.\n");
 	dd_delete(_task_get_id());
 }
 
