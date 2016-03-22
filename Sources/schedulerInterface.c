@@ -4,9 +4,12 @@
 
 const char token[2] = " ";
 
-_task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
-
-}
+//_task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
+//	TASK_TEMPLATE_STRUCT GeneratorTask[] = {
+//			{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0}
+//	};
+//	_task_id newTaskId = _task_create(0, 0, (uint32_t) GeneratorTask[0]);
+//}
 
 //creates a task
 _task_id _handleCreate(char* outputString){
@@ -18,7 +21,7 @@ _task_id _handleCreate(char* outputString){
 		return 0;
 	}
 	if(period != 0){
-		return _create_periodic(templateIndex, deadline, period);
+		//return _create_periodic(templateIndex, deadline, period);
 	}else{
 		return dd_tcreate(templateIndex, deadline);
 	}

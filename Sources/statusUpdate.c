@@ -48,8 +48,6 @@ void _handleCPUUtilization(uint32_t period, uint32_t timePassed){
 void StatusUpdate(uint32_t *timePassed){
 	uint32_t period = 10000;
 	printf("[Status Update] Status Update: Interval %u\n", period);
-	_handleActive();
-	_handleOverdue();
 	_handleCPUUtilization(period, *timePassed);
 	*timePassed = 0;
 	return;

@@ -276,7 +276,7 @@ void runStatusUpdate(os_task_param_t task_init_data)
 	uint32_t *ms_ptr = &g_milliseconds;
 	while(1){
 		StatusUpdate(ms_ptr);
-		_time_delay(5000);
+		_time_delay(40000);
 	}
 //	_timer_id result = _timer_start_periodic_every(StatusUpdate,ms_ptr,TIMER_ELAPSED_TIME_MODE, 10);
 //	if(result == TIMER_NULL_ID){
