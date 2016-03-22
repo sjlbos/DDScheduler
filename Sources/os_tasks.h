@@ -26,7 +26,6 @@
 #include "schedulerInterface.h"
 #include "monitor.h"
 #include "serialHandler.h"
-#include "statusUpdate.h"
 #include "Events.h"
 
 #ifdef __cplusplus
@@ -50,6 +49,7 @@ extern "C" {
 #define INTERRUPT_MESSAGE_POOL_GROWTH_RATE 1
 #define INTERRUPT_MESSAGE_POOL_MAX_SIZE 16
 
+#define STATUS_UPDATE_PERIOD 10000
 
 /*=============================================================
                      TASK ENTRY POINTS
@@ -61,6 +61,7 @@ void runSchedulerInterface(os_task_param_t task_init_data);
 void runMonitor(os_task_param_t task_init_data);
 void runStatusUpdate(os_task_param_t task_init_data);
 void runUserTask(uint32_t numTicks);
+
 /*=============================================================
                      INTERNAL FUNCTIONS
  ==============================================================*/

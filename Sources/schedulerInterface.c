@@ -11,12 +11,6 @@
 #define PERIODIC_GENERATOR_TASK_PRIORITY 5
 
 /*=============================================================
-                     LOCAL GLOBAL VARIABLES
- ==============================================================*/
-
-static TASK_TEMPLATE_STRUCT g_GeneratorTaskTemplate = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
-
-/*=============================================================
                       FUNCTION PROTOTYPES
  ==============================================================*/
 
@@ -32,6 +26,12 @@ _task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t
 
 // Helper functions
 void _prettyPrintTaskList();
+
+/*=============================================================
+                     LOCAL GLOBAL VARIABLES
+ ==============================================================*/
+
+static TASK_TEMPLATE_STRUCT g_GeneratorTaskTemplate = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
 
 /*=============================================================
                       PUBLIC INTERFACE
@@ -71,7 +71,7 @@ _task_id _handleCreateCommand(char* commandString){
 	if(period == 0){
 		return dd_tcreate(templateIndex, deadline);
 	} else {
-		return _create_periodic(templateIndex, deadline, period);
+		return _createPeriodicTask(templateIndex, deadline, period);
 	}
 }
 
