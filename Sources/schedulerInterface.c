@@ -3,9 +3,18 @@
 #include "TerminalDriver/handler.h"
 #include "mqx_ksdk.h"
 
+/*=============================================================
+                      CONSTANTS
+ ==============================================================*/
+
 #define PERIODIC_TASK_STACK_SIZE 700
-#define PERIODIC_TASK_PRIORITY 19
-const char token[2] = " ";
+#define PERIODIC_GENERATOR_TASK_PRIORITY 5
+
+/*=============================================================
+                     LOCAL GLOBAL VARIABLES
+ ==============================================================*/
+
+static TASK_TEMPLATE_STRUCT g_GeneratorTaskTemplate = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
 
 /*=============================================================
                       FUNCTION PROTOTYPES
@@ -17,41 +26,12 @@ bool _handleDeleteCommand(char* commandString);
 void _handleGetActiveCommand();
 void _handleGetOverdueCommand();
 
-// Helper functions
-void _prettyPrintTaskList();
+// Periodic task generation
+void runPeriodicGenerator(os_task_param_t task_init_data);
 _task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period);
 
-/*=============================================================
-                      PERIODIC GENERATOR TASK
- ==============================================================*/
-
-void runPeriodicGenerator(os_task_param_t task_init_data)
-{
-  printf("[Scheduler Interface] Periodic Task created\n");
-
-#ifdef PEX_USE_RTOS
-  while (1) {
-#endif
-    /* Write your code here ... */
-
-
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-
-
-
-
-#ifdef PEX_USE_RTOS
-  }
-#endif
-}
-
-TASK_TEMPLATE_STRUCT *GeneratorTask = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0};
-
-_task_id _create_periodic(uint32_t templateIndex, uint32_t deadline, uint32_t period){
-	_task_id newTaskId = _task_create(0, 0, (uint32_t) &GeneratorTask);
-	uint32_t error = _task_get_error();
-	return newTaskId;
-}
+// Helper functions
+void _prettyPrintTaskList();
 
 /*=============================================================
                       PUBLIC INTERFACE
@@ -83,6 +63,7 @@ bool si_handleCommand(char* commandString){
  ==============================================================*/
 
 _task_id _handleCreateCommand(char* commandString){
+	char token[2] = " ";
 	strtok(commandString,token);
 	uint32_t templateIndex = atoi(strtok(NULL,token));
 	uint32_t deadline = atoi(strtok(NULL,token));
@@ -95,6 +76,7 @@ _task_id _handleCreateCommand(char* commandString){
 }
 
 bool _handleDeleteCommand(char* commandString){
+	char token[2] = " ";
 	strtok(commandString,token);
 	uint32_t taskId = atoi(strtok(NULL,token));
 	if(strtok(NULL,token) != NULL){
@@ -131,6 +113,35 @@ void _handleGetOverdueCommand(){
 }
 
 /*=============================================================
+                      PERIODIC GENERATOR TASK
+ ==============================================================*/
+
+void runPeriodicGenerator(os_task_param_t task_init_data){
+  printf("[Scheduler Interface] Periodic Task created\n");
+
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+    /* Write your code here ... */
+
+
+    OSA_TimeDelay(10);                 /* Example code (for task release) */
+
+
+
+
+#ifdef PEX_USE_RTOS
+  }
+#endif
+}
+
+_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period){
+	_task_id newTaskId = _task_create(0, 0, (uint32_t) &g_GeneratorTaskTemplate);
+	uint32_t error = _task_get_error();
+	return newTaskId;
+}
+
+/*=============================================================
                        HELPER FUNCTIONS
  ==============================================================*/
 
@@ -139,7 +150,7 @@ void _prettyPrintTaskList(TaskList taskList){
 	do{
 		printf("\n{\n ID: %u\n Deadline:  %u\n Created At: %u\n}\n",
 				taskList->task->TaskId,
-				taskList->task->Deadline,
+				taskList->task->Deadline.TICKS[0],
 				taskList->task->CreatedAt.TICKS[0]);
 		taskList = taskList->nextNode;
 	}while(taskList!=NULL);
@@ -147,9 +158,3 @@ void _prettyPrintTaskList(TaskList taskList){
 	return;
 }
 
-_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period){
-//	TASK_TEMPLATE_STRUCT GeneratorTask[] = {
-//			{ 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0}
-//	};
-//	_task_id newTaskId = _task_create(0, 0, (uint32_t) GeneratorTask[0]);
-}
