@@ -35,81 +35,81 @@
     <FLASHsize>1M</FLASHsize>
   </PROCESSOR>
   <PATHS>
-    <LinkerCommandFile>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Project_Settings\Linker_Files\ProcessorExpert.ld</LinkerCommandFile>
+    <LinkerCommandFile>C:\Users\jorinw\Documents\DDScheduler\Project_Settings\Linker_Files\ProcessorExpert.ld</LinkerCommandFile>
     <IncludePaths>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\inc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\sim\MK64F12\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\system\src\clock\MK64F12\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\system\inc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\drivers\inc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\cpu\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\config\common\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\include\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\bsp\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\compiler\gcc_arm\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\fs\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_dummy\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_serial\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_tty\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\include\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\uart\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\drivers\src\uart\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\utilities\inc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Generated_Code\SDK\rtos\mqx\config\board\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Generated_Code\SDK\rtos\mqx\config\mcu\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\osa\inc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\CMSIS\Include\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\MK64F12\include\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\utilities\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\MK64F12\startup\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Generated_Code\SDK\platform\devices\MK64F12\startup\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Sources\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Generated_Code\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\inc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\sim\MK64F12\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\system\src\clock\MK64F12\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\system\inc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\drivers\inc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\cpu\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\config\common\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\include\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\bsp\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\compiler\gcc_arm\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\fs\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_dummy\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_serial\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_tty\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\include\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\uart\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\drivers\src\uart\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\utilities\inc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\SDK\rtos\mqx\config\board\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\SDK\rtos\mqx\config\mcu\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\osa\inc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\CMSIS\Include\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\include\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\utilities\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\startup\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\SDK\platform\devices\MK64F12\startup\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Sources\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\</Path>
     </IncludePaths>
     <SourceCodePaths>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Generated_Code\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\MK64F12\startup\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\drivers\src\mpu\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\drivers\src\rtc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\drivers\src\uart\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\mcg\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\mpu\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\osc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\port\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\rtc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\sim\MK64F12\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\hal\src\uart\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\osa\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\system\src\clock\MK64F12\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\system\src\clock\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\system\src\hwtimer\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\system\src\interrupt\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\utilities\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\bsp\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\kernel\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_dummy\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_serial\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_tty\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\fs\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\nio\src\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\compiler\gcc_arm\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\string\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\strings\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Sources\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Sources\Scheduler\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Sources\TerminalDriver\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\Static_Code\System\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\MK64F12\startup\gcc\</Path>
-      <Path>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Generated_Code\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\startup\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\drivers\src\mpu\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\drivers\src\rtc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\drivers\src\uart\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\mcg\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\mpu\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\osc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\port\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\rtc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\sim\MK64F12\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\hal\src\uart\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\osa\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\system\src\clock\MK64F12\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\system\src\clock\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\system\src\hwtimer\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\system\src\interrupt\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\utilities\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\bsp\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\kernel\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_dummy\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_serial\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\drivers\nio_tty\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\fs\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\nio\src\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\compiler\gcc_arm\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\string\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\stdio\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx_stdlib\source\strings\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Sources\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Sources\Scheduler\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Sources\TerminalDriver\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\Static_Code\System\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\startup\gcc\</Path>
+      <Path>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\</Path>
     </SourceCodePaths>
   </PATHS>
   <FILES>
@@ -266,7 +266,6 @@
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\os_tasks.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\rtos_main_task.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\schedulerInterface.c</PathName>
-      <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\statusUpdate.c</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Static_Code\System\PE_low_level_init.c</PathName>
     </GeneratedCs>
     <GeneratedHs>
@@ -423,13 +422,12 @@
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\os_tasks.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\rtos_main_task.h</PathName>
       <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\schedulerInterface.h</PathName>
-      <PathName>C:\Users\jorinw\Documents\DDScheduler\Sources\statusUpdate.h</PathName>
     </GeneratedHs>
     <GeneratedASMs>
-      <PathName>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\platform\devices\MK64F12\startup\gcc\startup_MK64F12.S</PathName>
-      <PathName>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\boot.S</PathName>
-      <PathName>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\dispatch.S</PathName>
-      <PathName>C:\Users\sjlbos.UVIC\Repos\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\support.S</PathName>
+      <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\platform\devices\MK64F12\startup\gcc\startup_MK64F12.S</PathName>
+      <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\boot.S</PathName>
+      <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\dispatch.S</PathName>
+      <PathName>C:\Users\jorinw\Documents\DDScheduler\SDK\rtos\mqx\mqx\source\psp\cortex_m\core\M4\support.S</PathName>
     </GeneratedASMs>
   </FILES>
   <OPTIONS>

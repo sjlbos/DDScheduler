@@ -25,6 +25,7 @@
 #include "TerminalDriver/handler.h"
 #include "schedulerInterface.h"
 #include "monitor.h"
+#include "statusUpdate.h"
 #include "serialHandler.h"
 #include "Events.h"
 

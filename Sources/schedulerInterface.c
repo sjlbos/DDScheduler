@@ -68,7 +68,6 @@ _task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t
 	paramList->Period = period;
 	TASK_TEMPLATE_STRUCT generatorTaskTemplate = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, (uint32_t) paramList, 0};
 	_task_id newTaskId = _task_create(0, 0, (uint32_t) &generatorTaskTemplate);
-	uint32_t error = _task_get_error();
 	return newTaskId;
 }
 
