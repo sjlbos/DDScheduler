@@ -7,7 +7,7 @@
 **     Version     : Component 1.3.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2016-03-13, 13:24, # CodeGen: 3
+**     Date/Time   : 2016-03-23, 16:31, # CodeGen: 15
 **     Contents    :
 **         Init - osa_status_t SchedulerInterface_Init(void);
 **
@@ -64,7 +64,7 @@
 /* SchedulerInterface task name */  
 #define SCHEDULERINTERFACE_TASK_NAME   "schedulerinterface"
 /* SchedulerInterface task stack size */  
-#define SCHEDULERINTERFACE_TASK_STACK_SIZE 1024U
+#define SCHEDULERINTERFACE_TASK_STACK_SIZE 2048U
 /* SchedulerInterface task priority value */  
 #define SCHEDULERINTERFACE_TASK_PRIORITY 1U
 /*

@@ -26,7 +26,7 @@ MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's i
 const uint32_t USER_TASK_COUNT = 2;
 const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
 		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0},
-		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 50, 0}
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 2000, 0}
 };
 
 /*=============================================================
@@ -268,14 +268,14 @@ void runStatusUpdate(os_task_param_t task_init_data)
 {
 	printf("[Status Update] Task started.\n");
 
-	float cpuUtilization;
+	uint32_t cpuUtilization;
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
 
-		cpuUtilization = (float) (g_IdleMilliseconds / STATUS_UPDATE_PERIOD) * 100;
+		cpuUtilization = (uint32_t)((double) g_IdleMilliseconds / STATUS_UPDATE_PERIOD) * 100;
 
-		printf("[Status Update] CPU Utilization is: %.4f%% \n", cpuUtilization);
+		printf("[Status Update] CPU Utilization: %u %%\n", cpuUtilization);
 
 		g_IdleMilliseconds = 0;
 	}
