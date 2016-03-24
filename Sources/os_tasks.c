@@ -273,9 +273,16 @@ void runStatusUpdate(os_task_param_t task_init_data)
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
+
 		printf("IDLE MS: %u\n", g_IdleMilliseconds);
 		cpuUtilization = (uint32_t) ((float) (STATUS_UPDATE_PERIOD - g_IdleMilliseconds)/ STATUS_UPDATE_PERIOD) * 100;
 		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
+//
+//
+//		cpuUtilization = (uint32_t)((double) g_IdleMilliseconds / STATUS_UPDATE_PERIOD) * 100;
+//
+//		printf("[Status Update] CPU Utilization: %u %%\n", cpuUtilization);
+//
 
 		g_IdleMilliseconds = 0;
 	}

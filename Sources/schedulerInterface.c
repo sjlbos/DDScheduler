@@ -25,6 +25,7 @@ void runPeriodicGenerator(os_task_param_t task_init_data);
 _task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period);
 
 // Helper functions
+void _freeTaskList(TaskList taskList);
 void _prettyPrintTaskList();
 
 /*=============================================================
@@ -133,7 +134,7 @@ void _handleGetActiveCommand(){
 	}
 	printf("[Scheduler Interface] Active Tasks:\n");
 	_prettyPrintTaskList(taskList);
-	free(taskList);
+	_freeTaskList(taskList);
 	return;
 }
 
@@ -147,7 +148,7 @@ void _handleGetOverdueCommand(){
 	}
 	printf("[Scheduler Interface] Overdue Tasks:\n");
 	_prettyPrintTaskList(taskList);
-	free(taskList);
+	_freeTaskList(taskList);
 	return;
 }
 
@@ -155,6 +156,22 @@ void _handleGetOverdueCommand(){
 /*=============================================================
                        HELPER FUNCTIONS
  ==============================================================*/
+
+void _freeTaskList(TaskList taskList){
+	if(taskList == NULL){
+		return;
+	}
+
+	TaskListNodePtr currentNode = taskList;
+	TaskListNodePtr nextNode;
+	do{
+		nextNode = currentNode->nextNode;
+		free(currentNode->task);
+		free(currentNode);
+		currentNode = nextNode;
+	}
+	while(currentNode != NULL);
+}
 
 //print out tasks in a nice format
 void _prettyPrintTaskList(TaskList taskList){
