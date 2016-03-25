@@ -11,7 +11,7 @@ extern "C" {
                         GLOBAL VARIABLES
  ==============================================================*/
 
-uint32_t g_IdleMilliseconds; 		// The number of milliseconds the idle task has been running for since the last status update
+uint64_t* volatile g_MonitorTaskTicks;
 _pool_id g_InterruptMessagePool;	// A message pool for messages sent between from the UART event handler to the handler task
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
@@ -214,17 +214,22 @@ void runSchedulerInterface(os_task_param_t task_init_data)
  ==============================================================*/
 
 void doBusyWorkForTicks(uint32_t numTicks){
-	MQX_TICK_STRUCT startTime;
-	 _time_get_ticks(&startTime);
-
-	 uint32_t tickDeadline = startTime.TICKS[0] + numTicks;
-
 	MQX_TICK_STRUCT currentTime;
+	 _time_get_ticks(&currentTime);
+
+	 uint32_t ticksRun = 0;
+	 uint32_t currentTicks = currentTime.TICKS[0];
+	 uint32_t previousTicks = currentTime.TICKS[0];
 
 	do{
 		_time_get_ticks(&currentTime);
+		currentTicks = currentTime.TICKS[0];
+		if(currentTicks > previousTicks){
+			ticksRun++;
+			previousTicks = currentTicks;
+		}
 	}
-	while(currentTime.TICKS[0] <= tickDeadline);
+	while(ticksRun < numTicks);
 }
 
 void runUserTask(uint32_t numTicks){
@@ -238,24 +243,28 @@ void runUserTask(uint32_t numTicks){
                     MONITOR TASK
  ==============================================================*/
 
+typedef struct MonitorCount{
+	volatile uint64_t Value;
+} MonitorCount;
+
+typedef struct MonitorData{
+	MonitorCount Count;
+} MonitorData;
+
 void runMonitor(os_task_param_t task_init_data)
 {
 	printf("[Monitor] Task started.\n");
-	_time_set_ticks_per_sec(2000);
-	//printf("");
-	_mqx_uint ticksPerMillisecond = _time_get_ticks_per_sec()/1000;
-	uint32_t ticksRun = 0;
-	g_IdleMilliseconds = 0;
+
+	MonitorData monitor;
+	memset(&monitor, 0, sizeof(MonitorData));
+	g_MonitorTaskTicks = &monitor.Count.Value;
 
 	#ifdef PEX_USE_RTOS
 	  while (1) {
 	#endif
-		 while(ticksRun < ticksPerMillisecond){
-			 ticksRun ++;
-		 }
-		 g_IdleMilliseconds ++;
-		 ticksRun = 0;
-
+		  if(++(&monitor)->Count.Value == 0){ // This line is exactly 5 instructions/clock cycles
+			  // For reference, see https://community.freescale.com/thread/330927
+		  }
 	#ifdef PEX_USE_RTOS
 	  }
 	#endif
@@ -265,26 +274,31 @@ void runMonitor(os_task_param_t task_init_data)
                     STATUS UPDATE TASK
  ==============================================================*/
 
+#define FRDM_K64F_CLOCK_RATE 120e6 // 120 MHz
+#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 5
+#define MS_PER_SEC 1000
+
 void runStatusUpdate(os_task_param_t task_init_data)
 {
 	printf("[Status Update] Task started.\n");
 
+	uint32_t idleCountIncrementsPerMillisecond = (FRDM_K64F_CLOCK_RATE / CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT) / MS_PER_SEC;
+	uint32_t inactiveMilliseconds;
+	uint32_t activeMilliseconds;
 	uint32_t cpuUtilization;
+	uint64_t monitorTicks;
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
+		monitorTicks = *g_MonitorTaskTicks;
+		inactiveMilliseconds = *g_MonitorTaskTicks / idleCountIncrementsPerMillisecond;
+		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? STATUS_UPDATE_PERIOD : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
+		cpuUtilization = (activeMilliseconds / (float)STATUS_UPDATE_PERIOD) * 100;
 
-		printf("IDLE MS: %u\n", g_IdleMilliseconds);
-		cpuUtilization = (uint32_t) ((float) (STATUS_UPDATE_PERIOD - g_IdleMilliseconds)/ STATUS_UPDATE_PERIOD) * 100;
+		printf("Active milliseconds: %u\n", activeMilliseconds);
 		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
-//
-//
-//		cpuUtilization = (uint32_t)((double) g_IdleMilliseconds / STATUS_UPDATE_PERIOD) * 100;
-//
-//		printf("[Status Update] CPU Utilization: %u %%\n", cpuUtilization);
-//
 
-		g_IdleMilliseconds = 0;
+		*g_MonitorTaskTicks = 0;
 	}
 }
 
