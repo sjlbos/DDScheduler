@@ -40,7 +40,10 @@ void runPeriodicGenerator(os_task_param_t parameterListPtr){
 #endif
 
 	  printf("[Scheduler Interface] Periodic task being run\n");
-	  dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
+	  _task_id taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
+	  if(taskNum == 0) {
+		  _task_block();
+	  }
 	  _time_delay(paramList->Period);
 
 #ifdef PEX_USE_RTOS
