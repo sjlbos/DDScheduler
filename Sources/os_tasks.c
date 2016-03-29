@@ -12,6 +12,7 @@ extern "C" {
  ==============================================================*/
 
 uint64_t* volatile g_MonitorTaskTicks;
+uint64_t* volatile g_UserTaskTicks;
 _pool_id g_InterruptMessagePool;	// A message pool for messages sent between from the UART event handler to the handler task
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
@@ -212,8 +213,19 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 /*=============================================================
                           USER TASKS
  ==============================================================*/
+typedef struct UserCount{
+	volatile uint64_t Value;
+} UserCount;
+
+typedef struct UserData{
+	UserCount Count;
+} UserData;
 
 void doBusyWorkForTicks(uint32_t numTicks){
+	UserData monitor;
+	memset(&monitor, 0, sizeof(UserData));
+	g_UserTaskTicks = &monitor.Count.Value;
+
 	MQX_TICK_STRUCT currentTime;
 	 _time_get_ticks(&currentTime);
 
@@ -227,6 +239,9 @@ void doBusyWorkForTicks(uint32_t numTicks){
 		if(currentTicks > previousTicks){
 			ticksRun++;
 			previousTicks = currentTicks;
+		}
+		if(++(&monitor)->Count.Value == 0){ // This line is exactly 5 instructions/clock cycles
+					  // For reference, see https://community.freescale.com/thread/330927
 		}
 	}
 	while(ticksRun < numTicks);
@@ -285,18 +300,25 @@ void runStatusUpdate(os_task_param_t task_init_data)
 	uint32_t idleCountIncrementsPerMillisecond = (FRDM_K64F_CLOCK_RATE / CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT) / MS_PER_SEC;
 	uint32_t inactiveMilliseconds;
 	uint32_t activeMilliseconds;
+	uint32_t userActiveMilliseconds;
 	uint32_t cpuUtilization;
+	uint32_t schedulerOverhead;
 	uint64_t monitorTicks;
+	uint64_t userTicks;
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
 		monitorTicks = *g_MonitorTaskTicks;
+		userTicks = *g_UserTaskTicks;
+		userActiveMilliseconds = *g_UserTaskTicks / idleCountIncrementsPerMillisecond;
 		inactiveMilliseconds = *g_MonitorTaskTicks / idleCountIncrementsPerMillisecond;
 		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? STATUS_UPDATE_PERIOD : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
 		cpuUtilization = (activeMilliseconds / (float)STATUS_UPDATE_PERIOD) * 100;
-
-		printf("Active milliseconds: %u\n", activeMilliseconds);
+		//schedulerOverhead = (/(float)STATUS_UPDATE_PERIOD) * 100;
+		printf("[Status Update] Active milliseconds: %u\n", activeMilliseconds);
 		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
+		printf("[Status Update] Work done in User Tasks: %u \n", userActiveMilliseconds);
+		printf("[Status Update] Scheduler Overhead: %u \n");
 
 		*g_MonitorTaskTicks = 0;
 	}
