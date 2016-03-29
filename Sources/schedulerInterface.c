@@ -42,6 +42,7 @@ void runPeriodicGenerator(os_task_param_t parameterListPtr){
 	  printf("[Scheduler Interface] Periodic task being run\n");
 	  _task_id taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
 	  if(taskNum == 0) {
+		  printf("[Scheduler Interface] Could not create periodic task\n");
 		  _task_block();
 	  }
 	  _time_delay(paramList->Period);

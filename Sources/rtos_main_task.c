@@ -55,8 +55,6 @@ extern void PEX_components_init(void);
 */
 void main_task(os_task_param_t task_init_data)
 {
-  /* Write your local variable definition here */
-  printf("Hello\n");
   /* Initialization of Processor Expert components (when some RTOS is active). DON'T REMOVE THIS CODE!!! */
 #ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
   PEX_components_init(); 
@@ -66,7 +64,6 @@ void main_task(os_task_param_t task_init_data)
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-    /* Write your code here ... */
     
     
     OSA_TimeDelay(10);                 /* Example code (for task release) */
