@@ -38,24 +38,19 @@ void _prettyPrintTaskList();
 void runPeriodicGenerator(os_task_param_t parameterListPtr){
   printf("[Scheduler Interface] Periodic Task created\n");
   PeriodicTaskParameterListPtr paramList = (PeriodicTaskParameterListPtr) parameterListPtr;
-  _task_id taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
-  if(taskNum == 0) {
-  		  printf("[Scheduler Interface] Could not create periodic task\n");
-  		  _task_block();
-  }
-  printf("[Scheduler Interface] Periodic task being run\n");
-  paramList->periodicTaskMap->userTaskID = taskNum;
 
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-	  _time_delay(paramList->Period);
 	  printf("[Scheduler Interface] Periodic task being run\n");
-	  taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
+	  _task_id taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
 	  if(taskNum == 0) {
 		  printf("[Scheduler Interface] Could not create periodic task\n");
 		  _task_block();
 	  }
+	  paramList->periodicTaskMap->userTaskID = taskNum;
+	  printf("[Scheduler Interface] Periodic task ID is: %u\n", taskNum);
+	  _time_delay(paramList->Period);
 
 #ifdef PEX_USE_RTOS
   }
@@ -155,6 +150,12 @@ bool _handleDeleteCommand(char* commandString){
 	uint32_t taskId = atoi(strtok(NULL,token));
 	if(strtok(NULL,token) != NULL){
 			return false;
+	}
+	int i = 0;
+	for(i = 0; i < g_mapIndex + 1; i++){
+		if(g_mapGeneratorWithTask[i]->userTaskID == taskId){
+			_task_destroy(g_mapGeneratorWithTask[i]->periodicGeneratorID);
+		}
 	}
 	return dd_delete(taskId);
 }
