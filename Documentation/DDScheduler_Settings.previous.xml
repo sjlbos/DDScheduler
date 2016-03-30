@@ -259,18 +259,5 @@
       <EmptySection_DummyValue />
     </Events>
   </Bean>
-  <Bean name="periodicGenerator" type="OS_Task">
-    <Enabled v="Y" />
-    <Properties>
-      <Name v="periodicGenerator" />
-      <Component_version v="1.3.0" />
-    </Properties>
-    <Methods>
-      <EmptySection_DummyValue />
-    </Methods>
-    <Events>
-      <EmptySection_DummyValue />
-    </Events>
-  </Bean>
 </PE_PROJECT_SETTINGS_DOCUMENTATION>
 

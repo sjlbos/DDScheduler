@@ -293,9 +293,6 @@ Module "serialHandler" (component OS_Task)
 Module "SchedulerInterface" (component OS_Task)
    - SchedulerInterface_Init -Creates and starts a task.
 
-Module "monitor"   (component OS_Task)
-   - monitor_Init -Creates and starts a task.
-
 Module "statusUpdate" (component OS_Task)
    - statusUpdate_Init -Creates and starts a task.
 
