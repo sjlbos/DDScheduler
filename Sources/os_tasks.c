@@ -2,6 +2,7 @@
 #include "Events.h"
 #include "rtos_main_task.h"
 #include "os_tasks.h"
+#include "mqx_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -253,6 +254,7 @@ typedef struct MonitorData{
 
 void runMonitor(os_task_param_t task_init_data)
 {
+	_task_block();
 	printf("[Monitor] Task started.\n");
 
 	MonitorData monitor;
@@ -278,27 +280,46 @@ void runMonitor(os_task_param_t task_init_data)
 #define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 5
 #define MS_PER_SEC 1000
 
+uint64_t _getIdleCount(){
+    volatile KERNEL_DATA_STRUCT_PTR kernel_data;
+    _GET_KERNEL_DATA(kernel_data);
+    uint64_t idleCount = kernel_data->IDLE_LOOP.IDLE_LOOP2;
+    idleCount = idleCount << 32;
+    idleCount += kernel_data->IDLE_LOOP.IDLE_LOOP1;
+    return idleCount;
+}
+
+uint32_t _getIdleMilliseconds(uint64_t idleCount){
+	static uint32_t cyclesPerMs = FRDM_K64F_CLOCK_RATE / MS_PER_SEC;
+	uint64_t elapsedCycles = idleCount * CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT;
+	return elapsedCycles / cyclesPerMs;
+}
+
 void runStatusUpdate(os_task_param_t task_init_data)
 {
 	printf("[Status Update] Task started.\n");
 
-	uint32_t idleCountIncrementsPerMillisecond = (FRDM_K64F_CLOCK_RATE / CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT) / MS_PER_SEC;
+	uint64_t currentIdleCount;
+	uint64_t previousIdleCount = _getIdleCount();
+	uint64_t idleCountDuringPeriod;
 	uint32_t inactiveMilliseconds;
 	uint32_t activeMilliseconds;
 	uint32_t cpuUtilization;
-	uint64_t monitorTicks;
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
-		monitorTicks = *g_MonitorTaskTicks;
-		inactiveMilliseconds = *g_MonitorTaskTicks / idleCountIncrementsPerMillisecond;
+
+		currentIdleCount = _getIdleCount();
+		idleCountDuringPeriod = currentIdleCount - previousIdleCount;
+
+		inactiveMilliseconds = _getIdleMilliseconds(idleCountDuringPeriod);
 		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? STATUS_UPDATE_PERIOD : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
-		cpuUtilization = (activeMilliseconds / (float)STATUS_UPDATE_PERIOD) * 100;
+		cpuUtilization = (activeMilliseconds * 100) / STATUS_UPDATE_PERIOD;
 
 		printf("Active milliseconds: %u\n", activeMilliseconds);
 		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
 
-		*g_MonitorTaskTicks = 0;
+		previousIdleCount = currentIdleCount;
 	}
 }
 
