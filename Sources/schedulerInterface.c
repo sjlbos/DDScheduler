@@ -22,7 +22,10 @@ void _handleGetOverdueCommand();
 
 // Periodic task generation
 void runPeriodicGenerator(os_task_param_t task_init_data);
-_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period);
+_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period,  PeriodicTaskMappingPtr periodicTaskMap);
+
+PeriodicTaskMappingPtr g_mapGeneratorWithTask[50];
+uint32_t g_mapIndex = 0;
 
 // Helper functions
 void _freeTaskList(TaskList taskList);
@@ -35,17 +38,24 @@ void _prettyPrintTaskList();
 void runPeriodicGenerator(os_task_param_t parameterListPtr){
   printf("[Scheduler Interface] Periodic Task created\n");
   PeriodicTaskParameterListPtr paramList = (PeriodicTaskParameterListPtr) parameterListPtr;
+  _task_id taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
+  if(taskNum == 0) {
+  		  printf("[Scheduler Interface] Could not create periodic task\n");
+  		  _task_block();
+  }
+  printf("[Scheduler Interface] Periodic task being run\n");
+  paramList->periodicTaskMap->userTaskID = taskNum;
+
 #ifdef PEX_USE_RTOS
   while (1) {
 #endif
-
+	  _time_delay(paramList->Period);
 	  printf("[Scheduler Interface] Periodic task being run\n");
-	  _task_id taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
+	  taskNum = dd_tcreate(paramList->TemplateIndex, paramList->Deadline);
 	  if(taskNum == 0) {
 		  printf("[Scheduler Interface] Could not create periodic task\n");
 		  _task_block();
 	  }
-	  _time_delay(paramList->Period);
 
 #ifdef PEX_USE_RTOS
   }
@@ -65,12 +75,23 @@ static PeriodicTaskParameterListPtr _initializePeriodicTaskParameterList(){
 	return list;
 }
 
-_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period){
+static PeriodicTaskMappingPtr _initializePeriodicTaskMapping(){
+	PeriodicTaskMappingPtr list;
+	if(!(list = (PeriodicTaskMappingPtr) malloc(sizeof(PeriodicTaskMapping)))){
+		printf("[Scheduler Interface] Unable to allocate memory for periodic task mapping struct.\n");
+		_task_block();
+	}
+	memset(list, 0, sizeof(PeriodicTaskMapping));
+	return list;
+}
+
+_task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t period, PeriodicTaskMappingPtr periodicTaskMap){
 	//create struct to hold uint32_t templateIndex, uint32_t deadline, uint32_t period
 	PeriodicTaskParameterListPtr paramList = _initializePeriodicTaskParameterList();
 	paramList->TemplateIndex = templateIndex;
 	paramList->Deadline = deadline;
 	paramList->Period = period;
+	paramList->periodicTaskMap = periodicTaskMap;
 	TASK_TEMPLATE_STRUCT generatorTaskTemplate = { 0, runPeriodicGenerator, PERIODIC_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, (uint32_t) paramList, 0};
 	_task_id newTaskId = _task_create(0, 0, (uint32_t) &generatorTaskTemplate);
 	return newTaskId;
@@ -115,7 +136,16 @@ _task_id _handleCreateCommand(char* commandString){
 	if(period == 0){
 		return dd_tcreate(templateIndex, deadline);
 	} else {
-		return _createPeriodicTask(templateIndex, deadline, period);
+		PeriodicTaskMappingPtr periodicTaskMap = _initializePeriodicTaskMapping();
+		_task_id newPeriodicGenerator = _createPeriodicTask(templateIndex, deadline, period, periodicTaskMap);
+		periodicTaskMap->periodicGeneratorID = newPeriodicGenerator;
+		g_mapGeneratorWithTask[g_mapIndex] = periodicTaskMap;
+		if(g_mapIndex > 47){
+			printf("[Scheduler Interface] Too many periodic tasks. Do not add more.\n");
+		} else {
+			g_mapIndex++;
+		}
+		return newPeriodicGenerator;
 	}
 }
 

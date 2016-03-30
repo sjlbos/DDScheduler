@@ -13,10 +13,16 @@
                       STRUCT DEFINITIONS
  ==============================================================*/
 
+typedef struct PeriodicTaskMapping{
+	_task_id periodicGeneratorID;
+	_task_id userTaskID;
+} PeriodicTaskMapping, *PeriodicTaskMappingPtr;
+
 typedef struct PeriodicTaskParameterList{
 	uint32_t TemplateIndex;
 	uint32_t Deadline;
 	uint32_t Period;
+	PeriodicTaskMappingPtr periodicTaskMap;
 } PeriodicTaskParameterList, *PeriodicTaskParameterListPtr;
 
 /*=============================================================
