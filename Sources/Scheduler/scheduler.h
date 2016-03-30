@@ -20,7 +20,7 @@
 
 #define OVERDUE_TASK_PRIORITY 20
 #define DEFAULT_TASK_PRIORITY 20
-#define RUNNING_TASK_PRIORITY 10
+#define RUNNING_TASK_PRIORITY 19
 
 /*=============================================================
                       EXPORTED TYPES
