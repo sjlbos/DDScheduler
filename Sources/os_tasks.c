@@ -12,7 +12,6 @@ extern "C" {
                         GLOBAL VARIABLES
  ==============================================================*/
 
-uint64_t* volatile g_MonitorTaskTicks;
 _pool_id g_InterruptMessagePool;	// A message pool for messages sent between from the UART event handler to the handler task
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
@@ -238,38 +237,6 @@ void runUserTask(uint32_t numTicks){
 	doBusyWorkForTicks(numTicks);
 	printf("[User] Task complete.\n");
 	dd_delete(_task_get_id());
-}
-
-/*=============================================================
-                    MONITOR TASK
- ==============================================================*/
-
-typedef struct MonitorCount{
-	volatile uint64_t Value;
-} MonitorCount;
-
-typedef struct MonitorData{
-	MonitorCount Count;
-} MonitorData;
-
-void runMonitor(os_task_param_t task_init_data)
-{
-	_task_block();
-	printf("[Monitor] Task started.\n");
-
-	MonitorData monitor;
-	memset(&monitor, 0, sizeof(MonitorData));
-	g_MonitorTaskTicks = &monitor.Count.Value;
-
-	#ifdef PEX_USE_RTOS
-	  while (1) {
-	#endif
-		  if(++(&monitor)->Count.Value == 0){ // This line is exactly 5 instructions/clock cycles
-			  // For reference, see https://community.freescale.com/thread/330927
-		  }
-	#ifdef PEX_USE_RTOS
-	  }
-	#endif
 }
 
 /*=============================================================
