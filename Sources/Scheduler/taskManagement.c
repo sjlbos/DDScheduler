@@ -4,11 +4,11 @@
                      LOCAL GLOBAL VARIABLES
  ==============================================================*/
 
-static const TASK_TEMPLATE_STRUCT* g_TaskTemplates;
-static uint32_t g_TaskTemplateCount;
-static SchedulerTaskPtr g_CurrentTask;
-static TaskList g_ActiveTasks;
-static TaskList g_OverdueTasks;
+static const TASK_TEMPLATE_STRUCT* g_TaskTemplates;	// Pointer to the list of task templates
+static uint32_t g_TaskTemplateCount;				// The number of templates in the task template list
+static SchedulerTaskPtr g_CurrentTask;				// The currently executing task (task with closest deadline)
+static TaskList g_ActiveTasks;						// The scheduler's list of active tasks
+static TaskList g_OverdueTasks;						// The scheduler's list of overdue tasks
 
 /*=============================================================
                       FUNCTION PROTOTYPES
@@ -52,13 +52,14 @@ _task_id createTask(uint32_t templateIndex, uint32_t ticksToDeadline){
 		return MQX_NULL_TASK_ID;
 	}
 
-	// Create a blocked task
+	// Create a new MQX task and ensure it was created successfully
 	_task_id newTaskId = _task_create(0, 0, (uint32_t) &g_TaskTemplates[templateIndex]);
 	if (newTaskId == MQX_NULL_TASK_ID){
 		printf("Unable to create task.\n");
 		_task_block();
 	}
 
+	// Add the newly created task to the scheduler
 	_scheduleNewTask(newTaskId, ticksToDeadline);
 
 	return newTaskId;
@@ -158,8 +159,10 @@ static void _scheduleNewTask(_task_id taskId, uint32_t ticksToDeadline){
  ==============================================================*/
 
 static bool _deleteOverdueTask(_task_id taskId){
+	// Try to delete the task from the list of overdue tasks
 	SchedulerTaskPtr removedTask = _removeTaskWithIdFromTaskList(taskId, &g_OverdueTasks);
 	if(removedTask == NULL){
+		// If the task does not exist, return false
 		return false;
 	}
 
@@ -168,8 +171,10 @@ static bool _deleteOverdueTask(_task_id taskId){
 }
 
 static bool _deleteActiveTask(_task_id taskId){
+	// Try to delete the task from the list of active tasks
 	SchedulerTaskPtr removedTask = _removeTaskWithIdFromTaskList(taskId, &g_ActiveTasks);
 	if(removedTask == NULL){
+		// If the task does not exist, return false
 		return false;
 	}
 
@@ -317,9 +322,11 @@ static SchedulerTaskPtr _removeTaskWithIdFromTaskList(_task_id taskId, TaskList*
 	for(;;){
 		// If the current task has the matching Id, remove it from the list and return it
 		if (currentNode->task->TaskId == taskId){
+			// If the current node is at the front of list, update the list to point at the next node
 			if (currentNode == *list){
 				*list = currentNode->nextNode;
 			}
+			// Otherwise, set the previous node to point to the next node
 			else{
 				currentNode->prevNode->nextNode = currentNode->nextNode;
 			}
