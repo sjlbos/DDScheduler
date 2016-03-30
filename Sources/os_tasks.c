@@ -226,7 +226,7 @@ void doBusyWorkForTicks(uint32_t numTicks){
 		_time_get_ticks(&currentTime);
 		currentTicks = currentTime.TICKS[0];
 		if(currentTicks > previousTicks){
-			ticksRun++;
+			ticksRun++; // The ticks run is only updated if the system clock ticks have increased
 			previousTicks = currentTicks;
 		}
 	}
@@ -245,9 +245,10 @@ void runUserTask(uint32_t numTicks){
  ==============================================================*/
 
 #define FRDM_K64F_CLOCK_RATE 120e6 // 120 MHz
-#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 14
+#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 14 // Rough approximation - tuned manually
 #define MS_PER_SEC 1000
 
+// Returns the current value of the counter inside the MQX idle task
 uint64_t _getIdleCount(){
     volatile KERNEL_DATA_STRUCT_PTR kernel_data;
     _GET_KERNEL_DATA(kernel_data);
@@ -257,6 +258,7 @@ uint64_t _getIdleCount(){
     return idleCount;
 }
 
+// Converts a value in MQX idle task counter units into milliseconds
 uint32_t _getIdleMilliseconds(uint64_t idleCount){
 	static uint32_t cyclesPerMs = FRDM_K64F_CLOCK_RATE / MS_PER_SEC;
 	uint64_t elapsedCycles = idleCount * CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT;
@@ -267,26 +269,25 @@ void runStatusUpdate(os_task_param_t task_init_data)
 {
 	printf("[Status Update] Task started.\n");
 
-	uint64_t currentIdleCount;
-	uint64_t previousIdleCount = _getIdleCount();
-	uint32_t idleCountDuringPeriod;
-	uint32_t inactiveMilliseconds;
-	uint32_t activeMilliseconds;
-	uint32_t cpuUtilization;
+	uint64_t currentIdleCount;						// The current value of the idle task's counter
+	uint64_t previousIdleCount = _getIdleCount();	// The value of the idle task counter at the start of the previous update
+	uint32_t idleCountDuringPeriod;					// The number of times the idle task counter was incrmeneted during this period
+	uint32_t inactiveMilliseconds;					// The number of milliseconds the CPU was inactive for during this period
+	uint32_t activeMilliseconds;					// The number of milliseconds the CPU was active for during this period
+	uint32_t cpuUtilization;						// The CPU utilization during this period
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
 
 		currentIdleCount = _getIdleCount();
 		idleCountDuringPeriod = currentIdleCount - previousIdleCount;
-
-		printf("Idle count during period: %u\n", idleCountDuringPeriod);
-
 		inactiveMilliseconds = _getIdleMilliseconds(idleCountDuringPeriod);
+
+		// It may be possible that the number of elapsed milliseconds is slightly greater than the milliseconds in the status update period
+		// due to randomness in the MQX scheduler. If it is greater, simply set the active milliseconds to zero to avoid an overflow.
 		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? 0 : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
 		cpuUtilization = (activeMilliseconds * 100) / STATUS_UPDATE_PERIOD;
 
-		printf("Active milliseconds: %u\n", activeMilliseconds);
 		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
 
 		previousIdleCount = currentIdleCount;
