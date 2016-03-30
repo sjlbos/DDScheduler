@@ -2,6 +2,7 @@
 #include "Events.h"
 #include "rtos_main_task.h"
 #include "os_tasks.h"
+#include "mqx_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,8 +12,6 @@ extern "C" {
                         GLOBAL VARIABLES
  ==============================================================*/
 
-uint64_t* volatile g_MonitorTaskTicks;
-uint64_t* volatile g_UserTaskTicks;
 _pool_id g_InterruptMessagePool;	// A message pool for messages sent between from the UART event handler to the handler task
 _pool_id g_SerialMessagePool;		// A message pool for messages sent between the handler task and its user tasks
 HandlerPtr g_Handler;				// The global handler instance
@@ -24,10 +23,11 @@ MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's i
 
 #define USER_TASK_STACK_SIZE 700
 
-const uint32_t USER_TASK_COUNT = 2;
+const uint32_t USER_TASK_COUNT = 3;
 const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
-		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0},
-		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 2000, 0}
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Short Task", 0, 10, 0},
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Medium Task", 0, 2000, 0},
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Long Task", 0, 5000, 0}
 };
 
 /*=============================================================
@@ -213,19 +213,8 @@ void runSchedulerInterface(os_task_param_t task_init_data)
 /*=============================================================
                           USER TASKS
  ==============================================================*/
-typedef struct UserCount{
-	volatile uint64_t Value;
-} UserCount;
-
-typedef struct UserData{
-	UserCount Count;
-} UserData;
 
 void doBusyWorkForTicks(uint32_t numTicks){
-	UserData monitor;
-	memset(&monitor, 0, sizeof(UserData));
-	g_UserTaskTicks = &monitor.Count.Value;
-
 	MQX_TICK_STRUCT currentTime;
 	 _time_get_ticks(&currentTime);
 
@@ -237,11 +226,8 @@ void doBusyWorkForTicks(uint32_t numTicks){
 		_time_get_ticks(&currentTime);
 		currentTicks = currentTime.TICKS[0];
 		if(currentTicks > previousTicks){
-			ticksRun++;
+			ticksRun++; // The ticks run is only updated if the system clock ticks have increased
 			previousTicks = currentTicks;
-		}
-		if(++(&monitor)->Count.Value == 0){ // This line is exactly 5 instructions/clock cycles
-					  // For reference, see https://community.freescale.com/thread/330927
 		}
 	}
 	while(ticksRun < numTicks);
@@ -255,72 +241,56 @@ void runUserTask(uint32_t numTicks){
 }
 
 /*=============================================================
-                    MONITOR TASK
- ==============================================================*/
-
-typedef struct MonitorCount{
-	volatile uint64_t Value;
-} MonitorCount;
-
-typedef struct MonitorData{
-	MonitorCount Count;
-} MonitorData;
-
-void runMonitor(os_task_param_t task_init_data)
-{
-	printf("[Monitor] Task started.\n");
-
-	MonitorData monitor;
-	memset(&monitor, 0, sizeof(MonitorData));
-	g_MonitorTaskTicks = &monitor.Count.Value;
-
-	#ifdef PEX_USE_RTOS
-	  while (1) {
-	#endif
-		  if(++(&monitor)->Count.Value == 0){ // This line is exactly 5 instructions/clock cycles
-			  // For reference, see https://community.freescale.com/thread/330927
-		  }
-	#ifdef PEX_USE_RTOS
-	  }
-	#endif
-}
-
-/*=============================================================
                     STATUS UPDATE TASK
  ==============================================================*/
 
 #define FRDM_K64F_CLOCK_RATE 120e6 // 120 MHz
-#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 5
+#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 14 // Rough approximation - tuned manually
 #define MS_PER_SEC 1000
+
+// Returns the current value of the counter inside the MQX idle task
+uint64_t _getIdleCount(){
+    volatile KERNEL_DATA_STRUCT_PTR kernel_data;
+    _GET_KERNEL_DATA(kernel_data);
+    uint64_t idleCount = kernel_data->IDLE_LOOP.IDLE_LOOP2;
+    idleCount = idleCount << 32;
+    idleCount += kernel_data->IDLE_LOOP.IDLE_LOOP1;
+    return idleCount;
+}
+
+// Converts a value in MQX idle task counter units into milliseconds
+uint32_t _getIdleMilliseconds(uint64_t idleCount){
+	static uint32_t cyclesPerMs = FRDM_K64F_CLOCK_RATE / MS_PER_SEC;
+	uint64_t elapsedCycles = idleCount * CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT;
+	return elapsedCycles / cyclesPerMs;
+}
 
 void runStatusUpdate(os_task_param_t task_init_data)
 {
 	printf("[Status Update] Task started.\n");
 
-	uint32_t idleCountIncrementsPerMillisecond = (FRDM_K64F_CLOCK_RATE / CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT) / MS_PER_SEC;
-	uint32_t inactiveMilliseconds;
-	uint32_t activeMilliseconds;
-	uint32_t userActiveMilliseconds;
-	uint32_t cpuUtilization;
-	uint32_t schedulerOverhead;
-	uint64_t monitorTicks;
-	uint64_t userTicks;
+	uint64_t currentIdleCount;						// The current value of the idle task's counter
+	uint64_t previousIdleCount = _getIdleCount();	// The value of the idle task counter at the start of the previous update
+	uint32_t idleCountDuringPeriod;					// The number of times the idle task counter was incrmeneted during this period
+	uint32_t inactiveMilliseconds;					// The number of milliseconds the CPU was inactive for during this period
+	uint32_t activeMilliseconds;					// The number of milliseconds the CPU was active for during this period
+	uint32_t cpuUtilization;						// The CPU utilization during this period
 
 	while(1){
 		_time_delay(STATUS_UPDATE_PERIOD);
-		monitorTicks = *g_MonitorTaskTicks;
-		userTicks = *g_UserTaskTicks;
-		userActiveMilliseconds = *g_UserTaskTicks / idleCountIncrementsPerMillisecond;
-		inactiveMilliseconds = *g_MonitorTaskTicks / idleCountIncrementsPerMillisecond;
-		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? STATUS_UPDATE_PERIOD : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
-		cpuUtilization = (activeMilliseconds / (float)STATUS_UPDATE_PERIOD) * 100;
-		//schedulerOverhead = (/(float)STATUS_UPDATE_PERIOD) * 100;
-		printf("[Status Update] Active milliseconds: %u\n", activeMilliseconds);
-		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
-		printf("[Status Update] Work done in User Tasks: %u \n", userActiveMilliseconds);
-		printf("[Status Update] Scheduler Overhead: %u \n");
 
-		*g_MonitorTaskTicks = 0;
+		currentIdleCount = _getIdleCount();
+		idleCountDuringPeriod = currentIdleCount - previousIdleCount;
+		inactiveMilliseconds = _getIdleMilliseconds(idleCountDuringPeriod);
+
+		// It may be possible that the number of elapsed milliseconds is slightly greater than the milliseconds in the status update period
+		// due to randomness in the MQX scheduler. If it is greater, simply set the active milliseconds to zero to avoid an overflow.
+		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? 0 : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
+		cpuUtilization = (activeMilliseconds * 100) / STATUS_UPDATE_PERIOD;
+
+		printf("[Status Update] CPU Utilization is: %u %% \n", cpuUtilization);
+
+		previousIdleCount = currentIdleCount;
 	}
 }
 
