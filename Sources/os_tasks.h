@@ -24,6 +24,7 @@
 #include "Scheduler/scheduler.h"
 #include "TerminalDriver/handler.h"
 #include "schedulerInterface.h"
+#include "monitor.h"
 #include "statusUpdate.h"
 #include "serialHandler.h"
 #include "Events.h"
@@ -69,5 +70,16 @@ void runUserTask(uint32_t numTicks);
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif 
+
+/*
+** ===================================================================
+**     Callback    : runMonitor
+**     Description : Task function entry.
+**     Parameters  :
+**       task_init_data - OS task parameter
+**     Returns : Nothing
+** ===================================================================
+*/
+void runMonitor(os_task_param_t task_init_data);
 
 #endif 
