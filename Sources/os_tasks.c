@@ -23,10 +23,11 @@ MUTEX_STRUCT g_HandlerMutex;		// The mutex controlling access to the handler's i
 
 #define USER_TASK_STACK_SIZE 700
 
-const uint32_t USER_TASK_COUNT = 2;
+const uint32_t USER_TASK_COUNT = 3;
 const TASK_TEMPLATE_STRUCT USER_TASKS[] = {
-		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Periodic Task", 0, 10, 0},
-		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Run Once Task", 0, 2000, 0}
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Short Task", 0, 10, 0},
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Medium Task", 0, 2000, 0},
+		{ 0, runUserTask, USER_TASK_STACK_SIZE, DEFAULT_TASK_PRIORITY, "Long Task", 0, 5000, 0}
 };
 
 /*=============================================================
@@ -244,7 +245,7 @@ void runUserTask(uint32_t numTicks){
  ==============================================================*/
 
 #define FRDM_K64F_CLOCK_RATE 120e6 // 120 MHz
-#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 5
+#define CLOCK_CYCLES_PER_IDLE_TASK_INCREMENT 14
 #define MS_PER_SEC 1000
 
 uint64_t _getIdleCount(){
@@ -268,7 +269,7 @@ void runStatusUpdate(os_task_param_t task_init_data)
 
 	uint64_t currentIdleCount;
 	uint64_t previousIdleCount = _getIdleCount();
-	uint64_t idleCountDuringPeriod;
+	uint32_t idleCountDuringPeriod;
 	uint32_t inactiveMilliseconds;
 	uint32_t activeMilliseconds;
 	uint32_t cpuUtilization;
@@ -279,8 +280,10 @@ void runStatusUpdate(os_task_param_t task_init_data)
 		currentIdleCount = _getIdleCount();
 		idleCountDuringPeriod = currentIdleCount - previousIdleCount;
 
+		printf("Idle count during period: %u\n", idleCountDuringPeriod);
+
 		inactiveMilliseconds = _getIdleMilliseconds(idleCountDuringPeriod);
-		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? STATUS_UPDATE_PERIOD : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
+		activeMilliseconds = (inactiveMilliseconds > STATUS_UPDATE_PERIOD) ? 0 : STATUS_UPDATE_PERIOD - inactiveMilliseconds;
 		cpuUtilization = (activeMilliseconds * 100) / STATUS_UPDATE_PERIOD;
 
 		printf("Active milliseconds: %u\n", activeMilliseconds);
