@@ -104,7 +104,7 @@ _task_id _createPeriodicTask(uint32_t templateIndex, uint32_t deadline, uint32_t
 
 //handles the different commands that the user can input
 bool si_handleCommand(char* commandString){
-	printf("[Scheduler Interface] Received string: %s\n", commandString);
+	printf("[Scheduler Interface] Received string: %s", commandString);
 	switch(commandString[0]){
 		case 'c':// Create a task
 			return _handleCreateCommand(commandString) != MQX_NULL_TASK_ID;
